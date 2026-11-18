@@ -1,0 +1,422 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Aula interativa de DDD com C#, diagramas, exercícios, simulador e quiz."><title>DDD na prática | Aula interativa de Arquitetura de Software</title><style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fc; --paper: #ffffff; --paper-2:#f8fbff; --ink:#14233d; --muted:#56657a;
+      --navy:#122945; --blue:#155bbc; --blue-2:#eaf2ff; --orange:#d8750e; --orange-2:#fff3e2;
+      --line:#dbe4f0; --good:#147856; --good-2:#e8f6f0; --bad:#ad4d34; --bad-2:#fff1ec;
+      --shadow:0 14px 42px rgba(24,54,95,.08); --code:#101d30; --code-ink:#e8f0ff;
+    }
+    [data-theme="dark"] {
+      color-scheme:dark;
+      --bg:#0e1827; --paper:#17253a; --paper-2:#1a2c45; --ink:#f0f5ff; --muted:#b4c3d7;
+      --navy:#122945; --blue:#80b5ff; --blue-2:#213b62; --orange:#ffb259; --orange-2:#3a2f27;
+      --line:#35465b; --good:#79e0b9; --good-2:#1d423a; --bad:#ffb0a0; --bad-2:#49332f;
+      --shadow:0 14px 42px rgba(0,0,0,.2); --code:#0b1422; --code-ink:#e8f0ff;
+    }
+    * {box-sizing:border-box}
+    html {scroll-behavior:smooth; scroll-padding-top:30px}
+    body {margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif;line-height:1.65}
+    button {font:inherit;cursor:pointer}
+    button:focus-visible,a:focus-visible,summary:focus-visible {outline:3px solid var(--orange);outline-offset:3px}
+    a {color:inherit}
+    .top-progress {height:5px;background:var(--line);position:fixed;top:0;left:0;right:0;z-index:100}
+    .top-progress > div {height:100%;width:0;background:linear-gradient(90deg,#2676e0,#f6a748);transition:width .15s}
+    .layout {display:grid;grid-template-columns:255px minmax(0,1fr);max-width:1600px;margin:auto;min-height:100vh}
+    .sidebar {position:sticky;top:0;height:100vh;padding:31px 20px 23px;background:#122945;color:#e9f1fc;display:flex;flex-direction:column;gap:18px;overflow-y:auto}
+    .brand {display:flex;align-items:center;gap:11px;padding:5px 8px 18px;border-bottom:1px solid #344965}
+    .brand-mark {display:grid;place-items:center;border:2px solid #ffb15c;border-radius:12px;width:43px;height:43px;color:#ffb15c;font-size:22px;font-weight:900}
+    .brand strong {display:block;font-size:15px;line-height:1.2}
+    .brand small {display:block;color:#aabdd6;font-size:11px;margin-top:4px;letter-spacing:.09em;text-transform:uppercase}
+    .nav-label {font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#95aecb;margin:3px 10px}
+    .nav {display:grid;gap:4px}
+    .nav a {padding:10px 12px;border-radius:10px;text-decoration:none;font-size:13.5px;font-weight:650;transition:.18s;display:flex;align-items:center;gap:10px;color:#d8e6f8}
+    .nav a:hover,.nav a.active {background:#284b76;color:#fff}
+    .nav a span {border-radius:7px;display:inline-grid;place-items:center;background:#345476;color:#fff;min-width:24px;height:24px;font-size:12px;font-weight:900}
+    .sidebar-note {margin-top:auto;border:1px solid #344e6b;border-radius:12px;padding:13px;color:#c4d6eb;font-size:12px;line-height:1.6}
+    .sidebar-note b {color:#ffd19a}
+    main {min-width:0;padding:38px clamp(22px,5vw,76px) 80px;max-width:1300px;width:100%;margin:0 auto}
+    .toolbar {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:23px}
+    .eyebrow {font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-weight:850}
+    .toolbar-actions {display:flex;gap:8px;flex-wrap:wrap}
+    .btn {border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;padding:9px 13px;font-size:12.5px;font-weight:750;box-shadow:0 2px 5px rgba(0,0,0,.02)}
+    .btn:hover {border-color:var(--blue);transform:translateY(-1px)}
+    .btn.primary {background:#1b5eb5;border-color:#1b5eb5;color:#fff}
+    .btn.orange {background:#dd7b16;border-color:#dd7b16;color:white}
+    .hero {background:linear-gradient(128deg,#112b4c 0%,#1a4c85 72%,#225da0 100%);color:#fff;border-radius:24px;padding:clamp(25px,5vw,55px);box-shadow:0 20px 45px rgba(16,47,88,.19);overflow:hidden;position:relative}
+    .hero::after {content:'';position:absolute;width:280px;height:280px;border:55px solid rgba(255,255,255,.045);border-radius:50%;right:-150px;top:-150px}
+    .hero h1 {font-size:clamp(45px,7vw,83px);letter-spacing:-.065em;line-height:1.06;margin:12px 0 15px;font-weight:900}
+    .hero h1 em {font-style:normal;color:#ffb360}
+    .hero .lead {font-size:clamp(17px,2vw,20px);max-width:690px;color:#e2edfa;line-height:1.6}
+    .hero .meta {display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 31px}
+    .meta span {padding:6px 11px;border:1px solid rgba(255,255,255,.3);border-radius:25px;background:rgba(255,255,255,.07);font-size:12px;font-weight:700}
+    .hero-actions {display:flex;gap:10px;flex-wrap:wrap}
+    .hero-actions a {text-decoration:none;border-radius:10px;padding:12px 18px;font-weight:800;font-size:14px;background:#f2a145;color:#1c2d43}
+    .hero-actions a.alt {color:#fff;background:transparent;border:1px solid #7397c4}
+    .letter-strip {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:23px}
+    .letter {background:var(--paper);border:1px solid var(--line);border-radius:15px;padding:15px 10px;text-align:center;box-shadow:var(--shadow);min-width:0}
+    .letter b {display:block;font-size:clamp(32px,4vw,48px);font-weight:900;line-height:1.1;color:var(--blue)}
+    .letter span {display:block;font-size:12px;font-weight:750;color:var(--ink);line-height:1.25;margin-top:6px}
+    .letter small {display:block;font-size:11px;color:var(--muted);margin-top:5px;line-height:1.3}
+    section {margin-top:65px;scroll-margin-top:25px}
+    .section-head {display:flex;gap:17px;align-items:flex-start;margin-bottom:22px}
+    .section-marker {width:53px;height:53px;flex:none;display:grid;place-items:center;border-radius:14px;background:var(--blue-2);color:var(--blue);font-weight:900;font-size:28px;border:1px solid var(--line)}
+    h2 {font-size:clamp(29px,3vw,38px);line-height:1.16;letter-spacing:-.035em;margin:3px 0 10px}
+    h3 {font-size:19px;line-height:1.3;margin:0 0 11px}
+    h4 {font-size:15px;line-height:1.4;margin:0 0 9px}
+    .section-desc {color:var(--muted);font-size:15px;max-width:790px;margin:0}
+    .panel {border:1px solid var(--line);border-radius:18px;padding:24px;background:var(--paper);box-shadow:var(--shadow)}
+    .panel + .panel {margin-top:16px}
+    .panel p:last-child {margin-bottom:0}
+    .two-col {display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .three-col {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+    .pill {display:inline-block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;background:var(--blue-2);color:var(--blue);margin-bottom:11px}
+    .pill.orange {background:var(--orange-2);color:var(--orange)}
+    .note {border-left:4px solid #e58d26;padding:13px 16px;background:var(--orange-2);border-radius:0 10px 10px 0;color:var(--ink);font-size:14px}
+    .rule {color:var(--blue);font-size:20px;font-weight:850;line-height:1.4;margin:2px 0 12px}
+    .analogy {display:flex;gap:17px;align-items:start;background:var(--paper-2);padding:19px;border:1px solid var(--line);border-radius:13px;margin-bottom:18px}
+    .analogy-number {width:45px;height:45px;flex:none;border-radius:12px;display:grid;place-items:center;background:#fff1da;color:#93500c;font-size:22px;font-weight:900}
+    [data-theme="dark"] .analogy-number {background:#44341c;color:#ffd19a}
+    .analogy p {margin:5px 0 0;font-size:14px;color:var(--muted)}
+    .comparison {display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+    .compare {min-width:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:var(--paper)}
+    .compare .compare-header {display:flex;justify-content:space-between;align-items:center;gap:8px;padding:13px 16px;background:var(--bad-2);color:var(--bad);font-weight:900;font-size:14px}
+    .compare.good .compare-header {background:var(--good-2);color:var(--good)}
+    .compare .compare-text {padding:12px 16px;color:var(--muted);font-size:13px;line-height:1.45;min-height:66px}
+    .code-wrap {position:relative;background:var(--code);min-width:0}
+    pre {margin:0;padding:21px 17px 18px;overflow:auto;color:var(--code-ink);font:12.5px/1.68 Consolas,'Cascadia Code',Menlo,monospace;tab-size:2;white-space:pre}
+    .copy {position:absolute;top:9px;right:9px;z-index:2;border:1px solid #62738b;background:#263952;color:#e7f1ff;border-radius:7px;padding:5px 8px;font-size:11px;font-weight:800}
+    .copy:hover {background:#3d5475}
+    .diagram-wrap {margin:16px 0 4px;border:1px solid var(--line);border-radius:15px;background:var(--paper-2);padding:18px}
+    .diagram-title {font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:900;margin-bottom:13px}
+    .diagram-grid {display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .diagram-half {background:var(--paper);border-radius:12px;padding:13px;border:1px solid var(--line)}
+    .diagram-label {font-weight:900;font-size:12px;color:var(--muted);margin-bottom:10px}
+    .diagram-core {display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;min-height:130px}
+    .diagram-box {min-width:95px;max-width:100%;text-align:center;border:2px solid #95b7e5;background:var(--blue-2);padding:10px 12px;border-radius:11px;color:var(--ink);font-size:12px;font-weight:850;line-height:1.35}
+    .diagram-box.wrong {background:var(--bad-2);border-color:#e6a796}
+    .diagram-box.good {background:var(--good-2);border-color:#92c4b1}
+    .diagram-box.orange {background:var(--orange-2);border-color:#efc18c}
+    .diagram-box small {display:block;font-weight:500;font-size:10px;margin-top:4px;color:var(--muted)}
+    .arrow {font-size:21px;color:var(--blue);font-weight:900;line-height:1}
+    .vertical-stack {display:flex;flex-direction:column;align-items:center;gap:7px}
+    .mini-stack {display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+    .mini-stack .diagram-box {min-width:75px}
+    .takeaway {display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:17px}
+    .takeaway > div {padding:16px;border-radius:12px;background:var(--paper-2);border:1px solid var(--line);font-size:13px}
+    .takeaway strong {display:block;margin-bottom:6px;color:var(--blue);font-size:13px}
+    .takeaway p {margin:0;color:var(--muted)}
+    .prompt {background:var(--orange-2);border:1px solid #edc696;border-radius:14px;padding:18px;margin-top:17px}
+    [data-theme="dark"] .prompt {border-color:#74522d}
+    .prompt strong {font-size:14px}
+    .prompt p {font-size:14px;margin:7px 0 12px}
+    details {border:1px solid var(--line);border-radius:10px;background:var(--paper);margin-top:10px;overflow:hidden}
+    summary {padding:11px 14px;font-size:13px;font-weight:850;cursor:pointer;color:var(--blue)}
+    details .answer {padding:0 14px 14px;font-size:13px;color:var(--ink)}
+    details .answer p {margin:0 0 7px}
+    .experience {background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:23px;box-shadow:var(--shadow)}
+    .experience-grid {display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:stretch}
+    .form-row {display:grid;gap:8px;margin:14px 0}
+    .form-row label {font-size:13px;font-weight:800}
+    select {border:1px solid var(--line);background:var(--paper-2);border-radius:10px;color:var(--ink);padding:11px 12px;width:100%;font-size:14px}
+    .receipt {border:2px dashed #a4b8d3;background:var(--paper-2);border-radius:12px;padding:21px;display:flex;flex-direction:column;justify-content:center;gap:8px;font-size:14px}
+    .receipt .rowline {display:flex;justify-content:space-between;gap:9px}
+    .receipt hr {width:100%;border:0;border-top:1px solid var(--line)}
+    .receipt .total {font-size:24px;font-weight:900;color:var(--blue)}
+    .receipt .muted {font-size:12px;color:var(--muted)}
+    .split-head {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 14px}
+    .small-text {color:var(--muted);font-size:13px}
+    .lab-steps {counter-reset:step;display:grid;gap:11px;margin:17px 0}
+    .lab-step {counter-increment:step;display:flex;gap:12px;padding:13px;background:var(--paper-2);border:1px solid var(--line);border-radius:12px}
+    .lab-step::before {content:counter(step);width:26px;height:26px;flex:none;display:grid;place-items:center;background:var(--blue-2);border-radius:8px;font-weight:900;color:var(--blue)}
+    .lab-step div {font-size:14px}
+    .lab-step strong {display:block}
+    .quiz-question {padding:20px;border:1px solid var(--line);background:var(--paper);border-radius:15px;margin-bottom:14px}
+    .quiz-question h3 {font-size:16px;margin-bottom:13px}
+    .quiz-question .qnum {font-size:12px;color:var(--blue);font-weight:900;letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px}
+    .quiz-options {display:grid;gap:9px}
+    .quiz-option {display:flex;gap:11px;align-items:start;background:var(--paper-2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;cursor:pointer;font-size:14px;line-height:1.4}
+    .quiz-option:hover {border-color:#94b5e0}
+    .quiz-option input {margin-top:3px;accent-color:#2168c7}
+    .quiz-option.correct {border-color:#469b7c;background:var(--good-2)}
+    .quiz-option.incorrect {border-color:#dc9382;background:var(--bad-2)}
+    .quiz-feedback {display:none;font-size:13px;margin-top:12px;padding:11px 13px;background:var(--blue-2);color:var(--ink);border-radius:10px}
+    .score {font-size:20px;font-weight:900;color:var(--blue);padding:14px 0}
+    footer {margin-top:70px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+    .footer-line {display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+    .hide-on-screen {display:none}
+    @media (max-width:1100px) { .layout {grid-template-columns:214px minmax(0,1fr)} .sidebar{padding:25px 13px} main{padding:30px 24px 55px} .comparison{grid-template-columns:1fr} .compare .compare-text{min-height:0} }
+    @media (max-width:760px) { .layout {display:block} .sidebar{position:relative;height:auto;display:block;padding:14px 16px} .brand{padding-bottom:11px;margin-bottom:7px} .nav-label,.sidebar-note{display:none} .nav{display:flex;overflow-x:auto;gap:7px} .nav a{flex:none;white-space:nowrap;padding:8px} .nav a span{display:none} main{padding:22px 14px 45px} .toolbar{align-items:start} .hero{border-radius:17px;padding:26px 20px} .letter-strip{gap:5px} .letter{padding:12px 4px} .letter span{font-size:10px} .letter small{font-size:9px} .two-col,.three-col,.diagram-grid,.takeaway,.experience-grid{grid-template-columns:1fr} .panel,.experience{padding:17px} .section-head{gap:12px} .section-marker{width:42px;height:42px;font-size:23px} section{margin-top:45px} .diagram-core{min-height:90px} }
+    @media (prefers-reduced-motion:reduce) { html {scroll-behavior:auto} *,*::before,*::after {transition:none!important} }
+    @media print { :root{--bg:#fff;--ink:#000;--paper:#fff;--paper-2:#fff;--muted:#343434;--line:#ccc;--blue:#174f9a;--blue-2:#eaf2ff} body{background:#fff;font-size:11pt} .layout{display:block} .sidebar,.top-progress,.toolbar-actions,.hero-actions,.copy,.btn,.quiz-actions{display:none!important} main{padding:0;max-width:none} .hero{padding:25px;color:#fff;print-color-adjust:exact} section{margin-top:28px;break-before:auto} .panel,.compare,.quiz-question,.analogy,.diagram-wrap{break-inside:avoid;box-shadow:none} .comparison,.two-col,.diagram-grid{grid-template-columns:1fr 1fr} .letter-strip{grid-template-columns:repeat(5,1fr)} pre{font-size:9pt;white-space:pre-wrap;overflow:visible;word-wrap:break-word;print-color-adjust:exact} details .answer{display:block} details {break-inside:avoid} .hide-on-screen{display:block} a{text-decoration:none} }
+  .concept-note{margin-top:18px}.concept-note p{margin:6px 0}.solid-figure{margin:20px 0}.solid-figure svg{display:block;width:100%;height:auto;color:var(--blue)}.visual-node rect{fill:var(--blue-2);stroke:var(--blue);stroke-width:1.5}.visual-node.good rect{fill:var(--good-2);stroke:var(--good)}.visual-node text{fill:var(--ink);font:700 14px Segoe UI,Arial,sans-serif}.visual-node .visual-sub{font-size:12px;font-weight:400;fill:var(--muted)}.visual-arrow{stroke:var(--blue);stroke-width:2;fill:none;marker-end:var(--arrowhead)}figcaption{font-size:13px;color:var(--muted);margin-top:10px}.objective-list{padding-left:22px}.skip-link{position:fixed;top:-100px;left:12px;z-index:200;background:var(--paper);padding:12px}.skip-link:focus{top:10px}select:focus-visible,input:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+.example-diagrams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.example-diagrams .solid-figure{margin:0;padding:14px;min-width:0}.solid-figure.bad .diagram-title{color:var(--bad)}.solid-figure.good .diagram-title{color:var(--good)}.visual-node.wrong rect{fill:var(--bad-2);stroke:var(--bad)}.example-diagrams .visual-node text{font-size:13px}.example-diagrams .visual-node .visual-sub{font-size:11px}.example-diagrams figcaption{font-size:12px;line-height:1.5}@media(max-width:900px){.example-diagrams{grid-template-columns:1fr}.example-diagrams svg{max-width:400px;margin:auto}}@media print{.example-diagrams{grid-template-columns:1fr 1fr}}
+</style></head><body><a class="skip-link" href="#conteudo">Pular para o conteúdo</a><div class="top-progress" aria-hidden="true"><div id="readProgress"></div></div><div class="layout"><aside class="sidebar" aria-label="Navegação da aula"><div class="brand"><div class="brand-mark">{ }</div><div><strong>ARQUITETURA<br>DE SOFTWARE</strong><small>Aula interativa</small></div></div><p class="nav-label">Conteúdo</p><nav class="nav" id="lessonNav"><a href="#inicio" class="active">Visão geral</a><a href="#fundamentos">Por que DDD?</a><a href="#linguagem">Linguagem ubíqua</a><a href="#contextos">Contextos delimitados</a><a href="#modelo">Entidades e objetos de valor</a><a href="#agregados">Agregados e invariantes</a><a href="#integracao">Serviços, repositórios e eventos</a><a href="#simulador">Experimente as invariantes</a><a href="#laboratorio">Laboratório C#</a><a href="#quiz">Quiz e revisão</a><a href="#leituras">Para aprofundar</a></nav><div class="sidebar-note"><b>Ideia central</b><br>O modelo nasce das regras do negócio.<br><a href="aula_solid_interativa.html">Revisitar SOLID</a></div></aside><main id="conteudo"><div class="toolbar"><span class="eyebrow">Arquitetura de Software · C#</span><div class="toolbar-actions"><button class="btn" id="themeBtn" type="button">Modo escuro</button><button class="btn" id="printBtn" type="button">Imprimir / PDF</button></div></div><header class="hero" id="inicio"><span class="eyebrow" style="color:#bcd8ff">Da conversa ao código</span><h1>DDD <em>na prática</em></h1><p class="lead">Modele software a partir do negócio: linguagem compartilhada, limites claros e regras protegidas pelo domínio.</p><div class="meta"><span>Exemplos em C#</span><span>Diagramas e analogias</span><span>Laboratório executável</span><span>Quiz comentado</span></div><div class="hero-actions"><a href="#fundamentos">Começar a aula</a><a class="alt" href="#laboratorio">Ir ao laboratório</a></div></header><div class="letter-strip"><div class="letter"><b>L</b><span>Linguagem</span><small>Conversa e código</small></div><div class="letter"><b>C</b><span>Contextos</span><small>Limites do modelo</small></div><div class="letter"><b>V</b><span>Entidades e valores</span><small>Identidade e atributos</small></div><div class="letter"><b>A</b><span>Agregados</span><small>Consistência</small></div><div class="letter"><b>E</b><span>Eventos</span><small>Fatos do negócio</small></div></div><p class="small-text">Estes cartões são um mapa da aula, não uma sigla oficial de DDD.</p><section id="fundamentos"><div class="section-head"><div class="section-marker">1</div><div><span class="eyebrow">Domain-Driven Design</span><h2>Por que DDD?</h2><p class="section-desc">Domain-Driven Design: o conhecimento do negócio orienta o modelo e o desenvolvimento.</p></div></div><div class="panel"><h3>Nosso cenário: uma loja de livros</h3><p>Vendas confirma pedidos; Estoque reserva exemplares; Expedição prepara entregas. As equipes usam algumas palavras iguais, mas precisam de regras e informações diferentes. DDD ajuda a descobrir e expressar essas diferenças em colaboração com especialistas do negócio.</p><div class="two-col"><div><h4>Pré-requisitos</h4><p>Classes, encapsulamento, interfaces e coleções em C#. A aula de SOLID ajuda a discutir as dependências.</p></div><div><h4>Objetivos de aprendizagem</h4><ul><li>Propor um vocabulário e limites para o modelo.</li><li>Distinguir entidades, valores e agregados.</li><li>Proteger invariantes e explicar eventos.</li><li>Executar e modificar um exemplo em C#.</li></ul></div></div><h3>Estratégia antes dos padrões</h3><p><b>Design estratégico:</b> entender subdomínios, contextos e relações. <b>Design tático:</b> expressar regras dentro de um contexto usando entidades, valores, agregados e serviços.</p><p>Um <b>subdomínio</b> é parte do problema de negócio. Um <b>contexto delimitado</b> é o limite em que um modelo se aplica. Os dois não são sinônimos nem precisam ter correspondência perfeita.</p><p>Subdomínios podem ser <b>core</b> (diferenciação), <b>de suporte</b> (operação específica) ou <b>genéricos</b> (necessidades comuns). Recomendações podem ser core para uma loja que compete pela curadoria; autenticação pode ser genérica. A classificação depende da estratégia.</p><div class="note">DDD é útil para regras complexas e conhecimento em evolução. Em um cadastro simples, um modelo elaborado pode custar mais do que ajuda. DDD não exige microserviços, CQRS, Event Sourcing ou uma arquitetura específica.</div></div></section><section id="linguagem"><div class="section-head"><div class="section-marker">2</div><div><span class="eyebrow">Domain-Driven Design</span><h2>Linguagem ubíqua</h2><p class="section-desc">Um vocabulário compartilhado entre especialistas e desenvolvedores, dentro de um contexto.</p></div></div><div class="panel"><div class="analogy"><div class="analogy-number">↔</div><div><h3>Analogia: a cozinha</h3><p>“Pedido pronto” precisa ter significado consistente para quem cozinha e para quem serve. Ambiguidade produz erros mesmo quando cada pessoa cumpre sua tarefa.</p></div></div><p>“Confirmar pedido” significa concluir a compra, autorizar pagamento ou reservar estoque? A equipe precisa decidir. Nesta aula, significa fechar um pedido não vazio e impedir alterações nos itens. Pagamento e reserva estão fora dessa regra simplificada.</p><div class="comparison"><div class="compare"><div class="compare-header">Modelo problemático</div><div class="compare-text">“Mudar status para 1” esconde a intenção e permite transições inválidas.</div></div><div class="compare good"><div class="compare-header">Modelo melhorado</div><div class="compare-text">“Confirmar pedido” expressa a intenção e executa regras acordadas.</div></div></div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>// Antes: estado alterado sem intenção explícita
+pedido.Status = 1;
+
+// Depois: comportamento com significado de negócio
+pedido.Confirmar();</code></pre></div><p>A linguagem aparece nas conversas, testes, telas e código. Ela evolui conforme o time aprende; não é um glossário produzido uma vez e esquecido.</p><figure class="diagram-wrap solid-figure"><svg viewBox="0 0 640 116" role="img" aria-labelledby="fig1t fig1d"><title id="fig1t">Especialista → Linguagem comum → Pedido.Confirmar()</title><desc id="fig1d">Conversas e exemplos refinam a linguagem usada pelo modelo; dúvidas do código também voltam aos especialistas.</desc><g class="visual-node "><rect x="2" y="16" width="194" height="78" rx="12"/><text x="99" y="60" text-anchor="middle">Especialista</text></g><text x="207" y="62" fill="currentColor" text-anchor="middle">→</text><g class="visual-node "><rect x="222" y="16" width="194" height="78" rx="12"/><text x="319" y="60" text-anchor="middle">Linguagem comum</text></g><text x="427" y="62" fill="currentColor" text-anchor="middle">→</text><g class="visual-node good"><rect x="442" y="16" width="194" height="78" rx="12"/><text x="539" y="60" text-anchor="middle">Pedido.Confirmar()</text></g></svg><figcaption>Conversas e exemplos refinam a linguagem usada pelo modelo; dúvidas do código também voltam aos especialistas.</figcaption></figure><div class="prompt"><strong>Exercício</strong><p>Cancelar e estornar são a mesma operação?</p><details><summary>Ver raciocínio</summary><div class="answer">Não necessariamente. Cancelar pode encerrar um pedido; estornar pode devolver um pagamento. Descubra pré-condições, efeitos e responsáveis antes de unificar os termos.</div></details></div></div></section><section id="contextos"><div class="section-head"><div class="section-marker">3</div><div><span class="eyebrow">Domain-Driven Design</span><h2>Contextos delimitados</h2><p class="section-desc">Bounded context: onde uma linguagem e um modelo têm significado consistente.</p></div></div><div class="panel"><h3>“Produto” tem diferentes sentidos</h3><div class="three-col"><div><span class="pill">Catálogo</span><p>Título, autor e sinopse: como apresentar o livro?</p></div><div><span class="pill">Vendas</span><p>SKU e preço acordado: o que foi vendido e por quanto?</p></div><div><span class="pill">Estoque</span><p>SKU, saldo e reservas: quantos exemplares estão disponíveis?</p></div></div><div class="comparison"><div class="compare"><div class="compare-header">Modelo problemático</div><div class="compare-text">Uma classe Produto global acumula regras de todas as equipes e torna as mudanças interdependentes.</div></div><div class="compare good"><div class="compare-header">Modelo melhorado</div><div class="compare-text">Cada contexto usa seu modelo. Identificadores e contratos explícitos relacionam informações entre contextos.</div></div></div><p>O preço do item do pedido é uma fotografia do acordo. Uma atualização no Catálogo não deve reescrever pedidos antigos.</p><h3>Mapa de contextos</h3><p>Registre quem fornece informações, quem depende de quem e como os contratos são traduzidos. Vendas consome uma oferta do Catálogo e mantém os dados necessários ao pedido. Uma <b>camada anticorrupção</b> pode traduzir códigos e estados de um legado para preservar o significado do modelo local.</p><figure class="diagram-wrap solid-figure"><svg viewBox="0 0 640 116" role="img" aria-labelledby="fig2t fig2d"><title id="fig2t">Catálogo: oferta → Contrato explícito → Vendas: item</title><desc id="fig2d">Vendas traduz a oferta para seu modelo e preserva o preço acordado. A seta indica o fluxo de informação.</desc><g class="visual-node "><rect x="2" y="16" width="194" height="78" rx="12"/><text x="99" y="60" text-anchor="middle">Catálogo: oferta</text></g><text x="207" y="62" fill="currentColor" text-anchor="middle">→</text><g class="visual-node "><rect x="222" y="16" width="194" height="78" rx="12"/><text x="319" y="60" text-anchor="middle">Contrato explícito</text></g><text x="427" y="62" fill="currentColor" text-anchor="middle">→</text><g class="visual-node good"><rect x="442" y="16" width="194" height="78" rx="12"/><text x="539" y="60" text-anchor="middle">Vendas: item</text></g></svg><figcaption>Vendas traduz a oferta para seu modelo e preserva o preço acordado. A seta indica o fluxo de informação.</figcaption></figure><div class="note">Um contexto não é automaticamente um microserviço, banco ou processo. Um monólito modular também pode preservar esses limites.</div><div class="prompt"><strong>Exercício</strong><p>Alterar o endereço do perfil deve modificar uma entrega já expedida?</p><details><summary>Ver discussão</summary><div class="answer">Não por simples compartilhamento de objeto. O endereço da entrega representa um acordo em um momento. Perfil e Entrega podem ter modelos distintos; qualquer mudança depende de regra explícita da operação.</div></details></div></div></section><section id="modelo"><div class="section-head"><div class="section-marker">4</div><div><span class="eyebrow">Domain-Driven Design</span><h2>Entidades e objetos de valor</h2><p class="section-desc">Identidade contínua e igualdade por atributos atendem a necessidades diferentes.</p></div></div><div class="panel"><div class="two-col"><div><span class="pill">Entidade</span><h3>Pedido</h3><p>Continua sendo o mesmo pedido quando muda de estado. Dois pedidos com o mesmo total ainda são pedidos diferentes.</p></div><div><span class="pill">Objeto de valor</span><h3>Dinheiro</h3><p>É definido por valor e moeda. Dois valores de R$ 10 são equivalentes neste modelo. A imutabilidade evita mudanças inesperadas em consumidores.</p></div></div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public sealed record Dinheiro
+{
+    public decimal Valor { get; }
+    public string Moeda { get; }
+    public Dinheiro(decimal valor, string moeda)
+    {
+        if (valor &lt; 0) throw new ArgumentOutOfRangeException(nameof(valor));
+        if (moeda != "BRL") throw new ArgumentException("A loja opera em BRL.");
+        Valor = valor;
+        Moeda = moeda;
+    }
+}</code></pre></div><p>O record fornece igualdade por valor; propriedades somente de leitura preservam a validação do construtor. A loja aceita apenas BRL e valores não negativos. Saldos devedores e múltiplas moedas exigiriam outras decisões.</p><p>Um ID de banco não transforma automaticamente um conceito em entidade. Pergunte se o negócio precisa distinguir e acompanhar aquela ocorrência ao longo do tempo.</p><figure class="diagram-wrap solid-figure"><svg viewBox="0 0 640 116" role="img" aria-labelledby="fig3t fig3d"><title id="fig3t">Pedido: identidade → Contém itens → Preço: valor</title><desc id="fig3d">Pedido tem identidade; o preço de seus itens é representado por um valor imutável.</desc><g class="visual-node "><rect x="2" y="16" width="194" height="78" rx="12"/><text x="99" y="60" text-anchor="middle">Pedido: identidade</text></g><text x="207" y="62" fill="currentColor" text-anchor="middle">→</text><g class="visual-node "><rect x="222" y="16" width="194" height="78" rx="12"/><text x="319" y="60" text-anchor="middle">Contém itens</text></g><text x="427" y="62" fill="currentColor" text-anchor="middle">→</text><g class="visual-node good"><rect x="442" y="16" width="194" height="78" rx="12"/><text x="539" y="60" text-anchor="middle">Preço: valor</text></g></svg><figcaption>Pedido tem identidade; o preço de seus itens é representado por um valor imutável.</figcaption></figure><div class="prompt"><strong>Exercício</strong><p>Uma linha do pedido precisa de identidade?</p><details><summary>Ver decisão do exemplo</summary><div class="answer">Aqui, cada linha é um valor imutável, sem ciclo de vida próprio. Se houver devoluções ou entregas parciais acompanhadas por linha, uma entidade ItemPedido com identidade pode ser mais adequada. O negócio orienta a escolha.</div></details></div></div></section><section id="agregados"><div class="section-head"><div class="section-marker">5</div><div><span class="eyebrow">Domain-Driven Design</span><h2>Agregados e invariantes</h2><p class="section-desc">Um limite de consistência cuja raiz coordena as mudanças e protege as regras.</p></div></div><div class="panel"><h3>Pedido é a raiz do nosso agregado</h3><p>Invariantes do exemplo: quantidades positivas; pedido não vazio ao confirmar; itens imutáveis após confirmação. Toda mudança passa pelas operações da raiz.</p><div class="comparison"><div class="compare"><div class="compare-header">Modelo problemático</div><div class="compare-text">Itens públicos e Status com setter permitem confirmar pedidos vazios e alterar pedidos já confirmados.</div></div><div class="compare good"><div class="compare-header">Modelo melhorado</div><div class="compare-text">Métodos AdicionarItem e Confirmar validam a intenção antes de mudar o estado.</div></div></div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public void Confirmar()
+{
+    ExigirRascunho();
+    if (itens.Count == 0)
+        throw new InvalidOperationException("Pedido vazio não pode ser confirmado.");
+    var total = Total;
+    Status = StatusPedido.Confirmado;
+    eventos.Add(new PedidoConfirmado(Id, total));
+}</code></pre></div><p>O projeto expõe a coleção com <code>AsReadOnly()</code> e usa itens imutáveis. Declarar apenas IReadOnlyList não protege uma lista mutável original se o consumidor puder recuperá-la por conversão.</p><p>Não inclua toda a loja no agregado. Defina seu limite pelas regras que precisam ficar consistentes juntas. Outros agregados podem ser referenciados por identidade.</p><figure class="diagram-wrap solid-figure"><svg viewBox="0 0 640 116" role="img" aria-labelledby="fig4t fig4d"><title id="fig4t">Aplicação → Pedido: raiz → Itens protegidos</title><desc id="fig4d">A aplicação solicita uma operação e a raiz verifica as invariantes antes de alterar sua coleção.</desc><g class="visual-node "><rect x="2" y="16" width="194" height="78" rx="12"/><text x="99" y="60" text-anchor="middle">Aplicação</text></g><text x="207" y="62" fill="currentColor" text-anchor="middle">→</text><g class="visual-node "><rect x="222" y="16" width="194" height="78" rx="12"/><text x="319" y="60" text-anchor="middle">Pedido: raiz</text></g><text x="427" y="62" fill="currentColor" text-anchor="middle">→</text><g class="visual-node good"><rect x="442" y="16" width="194" height="78" rx="12"/><text x="539" y="60" text-anchor="middle">Itens protegidos</text></g></svg><figcaption>A aplicação solicita uma operação e a raiz verifica as invariantes antes de alterar sua coleção.</figcaption></figure><div class="note">Em um banco real, são necessárias transações e proteção contra concorrência. Encapsulamento não impede dois processos de sobrescreverem dados.</div><div class="prompt"><strong>Exercício</strong><p>Estoque deve fazer parte do agregado Pedido?</p><details><summary>Ver discussão</summary><div class="answer">Não automaticamente. Descubra se a reserva deve estar garantida antes da confirmação e qual equipe governa suas regras. Pode ser necessário um processo entre agregados ou contextos, com tratamento de recusa e compensação. O laboratório não promete disponibilidade de estoque.</div></details></div></div></section><section id="integracao"><div class="section-head"><div class="section-marker">6</div><div><span class="eyebrow">Domain-Driven Design</span><h2>Serviços, repositórios e eventos</h2><p class="section-desc">Coordene o caso de uso mantendo as decisões de negócio no domínio.</p></div></div><div class="panel"><div class="three-col"><div><h3>Aplicação</h3><p>Obtém o pedido, solicita confirmação e salva. Coordena dependências e, em um sistema real, autorização e transação.</p></div><div><h3>Serviço de domínio</h3><p>Expressa uma regra que não cabe naturalmente em entidade ou valor, como seleção de transportadora. Não é o destino de toda regra.</p></div><div><h3>Repositório</h3><p>Oferece acesso a agregados como coleção, escondendo armazenamento. Não é preciso um repositório para cada tabela.</p></div></div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public sealed class ConfirmarPedido(IPedidos pedidos)
+{
+    public void Executar(Guid id)
+    {
+        var pedido = pedidos.Obter(id)
+            ?? throw new InvalidOperationException("Pedido não encontrado.");
+        pedido.Confirmar();
+        pedidos.Salvar(pedido);
+    }
+}</code></pre></div><h3>Comando pede; evento conta</h3><p>ConfirmarPedido solicita uma ação que pode ser rejeitada. PedidoConfirmado representa um fato já ocorrido. O evento contém dados do fato, sem expor uma entidade mutável inteira.</p><figure class="diagram-wrap solid-figure"><svg viewBox="0 0 640 116" role="img" aria-labelledby="fig5t fig5d"><title id="fig5t">ConfirmarPedido → Pedido.Confirmar() → PedidoConfirmado</title><desc id="fig5d">O caso de uso solicita, o agregado decide e o evento registra o sucesso.</desc><g class="visual-node "><rect x="2" y="16" width="194" height="78" rx="12"/><text x="99" y="60" text-anchor="middle">ConfirmarPedido</text></g><text x="207" y="62" fill="currentColor" text-anchor="middle">→</text><g class="visual-node "><rect x="222" y="16" width="194" height="78" rx="12"/><text x="319" y="60" text-anchor="middle">Pedido.Confirmar()</text></g><text x="427" y="62" fill="currentColor" text-anchor="middle">→</text><g class="visual-node good"><rect x="442" y="16" width="194" height="78" rx="12"/><text x="539" y="60" text-anchor="middle">PedidoConfirmado</text></g></svg><figcaption>O caso de uso solicita, o agregado decide e o evento registra o sucesso.</figcaption></figure><p>Um evento de domínio pode ser tratado na própria aplicação. Para outro contexto, defina um contrato de integração e publique após a confirmação persistente. Uma <b>outbox</b> pode gravar estado e mensagem na mesma transação; consumidores ainda precisam lidar com reentregas, por exemplo usando idempotência.</p><p>Registrar eventos não significa usar Event Sourcing. Aqui o estado atual do pedido é usado pelo programa e os eventos são apenas uma lista em memória.</p><div class="prompt"><strong>Exercício</strong><p>O e-mail falhou após salvar o pedido. Devemos apagar a confirmação?</p><details><summary>Ver discussão</summary><div class="answer">Em geral, uma falha de notificação não desfaz um fato já confirmado. Defina repetição e entrega confiável conforme a necessidade. A lista de eventos em memória deste exemplo não oferece garantia de publicação ou entrega.</div></details></div></div></section><section id="simulador"><div class="section-head"><div class="section-marker">7</div><div><span class="eyebrow">Domain-Driven Design</span><h2>Experimente as invariantes</h2><p class="section-desc">Simulação das regras simplificadas do laboratório.</p></div></div><div class="panel"><div class="experience-grid"><div><h3>Livro a R$ 100,00</h3><p>Tente confirmar sem itens e alterar após a confirmação.</p><div class="form-row"><label for="qty">Quantidade para adicionar</label><select id="qty"><option value="0">0 — inválida</option><option value="1" selected>1 livro</option><option value="2">2 livros</option><option value="3">3 livros</option></select></div><div class="toolbar-actions"><button class="btn" id="addItem" type="button">Adicionar item</button><button class="btn primary" id="confirmOrder" type="button">Confirmar pedido</button><button class="btn" id="resetOrder" type="button">Novo pedido</button></div></div><div class="receipt" aria-live="polite"><div class="rowline"><b>Estado</b><span id="orderStatus"></span></div><div class="rowline"><b>Quantidade</b><span id="orderQty"></span></div><hr><div class="total" id="orderTotal"></div><div id="orderMessage"></div><div class="muted" id="orderEvents"></div></div></div><p class="small-text">Sem pagamento, estoque ou persistência. Recarregar a página reinicia o pedido.</p></div></section><section id="laboratorio"><div class="section-head"><div class="section-marker">8</div><div><span class="eyebrow">Domain-Driven Design</span><h2>Laboratório C#</h2><p class="section-desc">Execute, observe as regras e evolua o modelo.</p></div></div><div class="panel"><p>Requer SDK .NET 8. No terminal, na pasta da aula:</p><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>dotnet run --project MiniLojaDDD
+dotnet run --project MiniLojaDDD -- --test</code></pre></div><p>Resultado esperado: pedido Confirmado, total de R$ 200,00 e evento PedidoConfirmado. A opção --test verifica o comportamento e informa se as verificações passaram.</p><p><a href="MiniLojaDDD/Program.cs">Abrir Program.cs</a> · <a href="MiniLojaDDD/README.md">Instruções do projeto</a></p><div class="lab-steps"><div class="lab-step"><div><strong>Identifique as responsabilidades</strong>Localize domínio, aplicação e infraestrutura. Por que ConfirmarPedido não decide se pedido vazio é válido?</div></div><div class="lab-step"><div><strong>Limite uma linha a dez unidades</strong>Rejeite onze sem modificar o estado. Adicione verificações para os limites.</div></div><div class="lab-step"><div><strong>Modele cancelamento</strong>Permita cancelar apenas rascunhos, bloqueie novas alterações e registre PedidoCancelado.</div></div><div class="lab-step"><div><strong>Discuta uma reserva</strong>Proponha os dados enviados ao Estoque e o que acontece se ele rejeitar a reserva.</div></div></div><details><summary>Resposta — limite de quantidade</summary><div class="answer"><p>Em AdicionarItem, valide antes de inserir:</p><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>if (quantidade &lt;= 0 || quantidade &gt; 10)
+    throw new ArgumentOutOfRangeException(nameof(quantidade));</code></pre></div><p>Verifique 10 aceito, 11 rejeitado e Itens/Total preservados na falha. A missão limita uma linha; limitar o total por SKU exige somar as linhas desse SKU.</p></div></details><details><summary>Resposta — cancelamento</summary><div class="answer">Inclua Cancelado no estado e uma operação Cancelar que exige rascunho. Use um contrato comum para armazenar PedidoCancelado e PedidoConfirmado na coleção de eventos. Verifique confirmação não cancelável, cancelamento repetido rejeitado e alterações bloqueadas. São regras da missão, não uma política universal.</div></details><details><summary>Resposta — reserva de estoque</summary><div class="answer">Um contrato pode carregar identificador único da solicitação, pedido e pares SKU/quantidade. O preço geralmente não é necessário. Defina um fluxo explícito, como AguardandoReserva antes de Confirmado, e trate recusa, expiração e mensagens duplicadas.</div></details><details id="labBase"><summary>Ver código completo da versão inicial</summary><div class="answer"><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>using System.Globalization;
+
+CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("pt-BR");
+var repositorio = new PedidosEmMemoria();
+var pedido = new Pedido(Guid.NewGuid());
+pedido.AdicionarItem("LIVRO-DDD", 2, new Dinheiro(100m, "BRL"));
+repositorio.Salvar(pedido);
+new ConfirmarPedido(repositorio).Executar(pedido.Id);
+Console.WriteLine($"Pedido {pedido.Id}: {pedido.Status} | {pedido.Total.Valor:C}");
+foreach (var evento in pedido.Eventos)
+    Console.WriteLine($"Evento: {evento.GetType().Name}");
+
+if (args.Contains("--test"))
+{
+    void Verificar(bool condicao, string caso)
+    {
+        if (!condicao) throw new Exception($"Falhou: {caso}");
+    }
+    void Rejeitar(Action acao, string caso)
+    {
+        try { acao(); }
+        catch (ArgumentException) { return; }
+        catch (InvalidOperationException) { return; }
+        throw new Exception($"Deveria rejeitar: {caso}");
+    }
+    Verificar(new Dinheiro(10, "BRL") == new Dinheiro(10, "BRL"), "Igualdade por valor");
+    Rejeitar(() =&gt; new Dinheiro(-1, "BRL"), "Preço negativo");
+    Rejeitar(() =&gt; new Dinheiro(10, "USD"), "Moeda não suportada");
+    var vazio = new Pedido(Guid.NewGuid());
+    Rejeitar(vazio.Confirmar, "Pedido vazio");
+    Verificar(vazio.Status == StatusPedido.Rascunho &amp;&amp; vazio.Eventos.Count == 0, "Falha não altera estado");
+    Rejeitar(() =&gt; vazio.AdicionarItem("SKU", 0, new Dinheiro(10, "BRL")), "Quantidade zero");
+    Rejeitar(() =&gt; vazio.AdicionarItem("", 1, new Dinheiro(10, "BRL")), "SKU vazio");
+    Verificar(pedido.Total.Valor == 200m, "Total calculado");
+    Rejeitar(() =&gt; pedido.AdicionarItem("SKU", 1, new Dinheiro(1, "BRL")), "Alteração após confirmação");
+    Rejeitar(pedido.Confirmar, "Confirmação duplicada");
+    Verificar(pedido.Eventos.Count == 1 &amp;&amp; pedido.Itens.Count == 1, "Uma confirmação e itens protegidos");
+    var evento = pedido.Eventos.Single();
+    Verificar(evento.PedidoId == pedido.Id &amp;&amp; evento.Total == pedido.Total, "Evento corresponde ao pedido");
+    Rejeitar(() =&gt; new ConfirmarPedido(repositorio).Executar(Guid.NewGuid()), "Pedido inexistente");
+    Console.WriteLine("Verificações de domínio passaram.");
+}
+
+// Objeto de valor: imutável e comparado pelos valores. A loja usa apenas BRL.
+public sealed record Dinheiro
+{
+    public decimal Valor { get; }
+    public string Moeda { get; }
+    public Dinheiro(decimal valor, string moeda)
+    {
+        if (valor &lt; 0) throw new ArgumentOutOfRangeException(nameof(valor));
+        if (moeda != "BRL") throw new ArgumentException("A loja opera em BRL.", nameof(moeda));
+        Valor = valor;
+        Moeda = moeda;
+    }
+}
+
+// Neste modelo, a linha é um valor imutável; não possui ciclo de vida próprio.
+public sealed record ItemPedido(string Sku, int Quantidade, Dinheiro PrecoUnitario);
+public enum StatusPedido { Rascunho, Confirmado }
+public sealed record PedidoConfirmado(Guid PedidoId, Dinheiro Total);
+
+// Entidade e raiz do agregado: toda mudança passa por ela.
+public sealed class Pedido
+{
+    private readonly List&lt;ItemPedido&gt; itens = new();
+    private readonly List&lt;PedidoConfirmado&gt; eventos = new();
+    public Guid Id { get; }
+    public StatusPedido Status { get; private set; } = StatusPedido.Rascunho;
+    public IReadOnlyList&lt;ItemPedido&gt; Itens =&gt; itens.AsReadOnly();
+    public IReadOnlyList&lt;PedidoConfirmado&gt; Eventos =&gt; eventos.AsReadOnly();
+    public Dinheiro Total =&gt; new(itens.Sum(i =&gt; i.PrecoUnitario.Valor * i.Quantidade), "BRL");
+    public Pedido(Guid id)
+    {
+        if (id == Guid.Empty) throw new ArgumentException("Id obrigatório.", nameof(id));
+        Id = id;
+    }
+    public void AdicionarItem(string sku, int quantidade, Dinheiro preco)
+    {
+        ExigirRascunho();
+        if (string.IsNullOrWhiteSpace(sku)) throw new ArgumentException("SKU obrigatório.", nameof(sku));
+        if (quantidade &lt;= 0) throw new ArgumentOutOfRangeException(nameof(quantidade));
+        ArgumentNullException.ThrowIfNull(preco);
+        itens.Add(new ItemPedido(sku, quantidade, preco));
+    }
+    public void Confirmar()
+    {
+        ExigirRascunho();
+        if (itens.Count == 0) throw new InvalidOperationException("Pedido vazio não pode ser confirmado.");
+        var total = Total;
+        Status = StatusPedido.Confirmado;
+        eventos.Add(new PedidoConfirmado(Id, total));
+    }
+    private void ExigirRascunho()
+    {
+        if (Status != StatusPedido.Rascunho)
+            throw new InvalidOperationException("Pedido confirmado não pode ser alterado.");
+    }
+}
+
+public interface IPedidos
+{
+    Pedido? Obter(Guid id);
+    void Salvar(Pedido pedido);
+}
+
+// Aplicação: coordena; a decisão de confirmar pertence ao agregado.
+public sealed class ConfirmarPedido(IPedidos pedidos)
+{
+    public void Executar(Guid id)
+    {
+        var pedido = pedidos.Obter(id) ?? throw new InvalidOperationException("Pedido não encontrado.");
+        pedido.Confirmar();
+        pedidos.Salvar(pedido);
+    }
+}
+
+// Infraestrutura didática: referências em memória, sem transações ou isolamento.
+public sealed class PedidosEmMemoria : IPedidos
+{
+    private readonly Dictionary&lt;Guid, Pedido&gt; dados = new();
+    public Pedido? Obter(Guid id) =&gt; dados.GetValueOrDefault(id);
+    public void Salvar(Pedido pedido) =&gt; dados[pedido.Id] = pedido;
+}
+</code></pre></div></div></details><div class="note" style="margin-top:18px">Os exemplos isolados anteriores são recortes didáticos. O código completo corresponde ao projeto. O repositório guarda referências em memória: não há banco, isolamento, rollback, controle de concorrência ou entrega confiável de eventos.</div></div></section><section id="quiz"><div class="section-head"><div class="section-marker">9</div><div><span class="eyebrow">Domain-Driven Design</span><h2>Quiz e revisão</h2><p class="section-desc">Escolha uma alternativa por questão e confira a correção comentada.</p></div></div><div class="panel"><div id="quizContainer"></div><div class="quiz-actions"><button class="btn primary" id="gradeQuiz" type="button">Corrigir respostas</button> <button class="btn" id="resetQuiz" type="button">Refazer quiz</button><div class="score" id="quizScore" aria-live="polite"></div></div><h3>Explique com suas palavras</h3><p><b>Linguagem:</b> significado compartilhado. <b>Contexto:</b> limite do modelo. <b>Entidade:</b> identidade no tempo. <b>Valor:</b> igualdade por atributos. <b>Agregado:</b> consistência protegida pela raiz. <b>Evento:</b> fato ocorrido.</p><p>Saída da aula: justifique um limite de contexto, uma invariante e uma escolha entre entidade e valor usando exemplos da loja.</p></div></section><section id="leituras"><div class="section-head"><div class="section-marker">10</div><div><span class="eyebrow">Domain-Driven Design</span><h2>Para aprofundar</h2><p class="section-desc">Referências de estudo e perguntas para continuar a modelagem.</p></div></div><div class="panel"><p>Eric Evans — <cite>Domain-Driven Design: Tackling Complexity in the Heart of Software</cite>. Linguagem, design estratégico e padrões táticos.</p><p>Vaughn Vernon — <cite>Implementing Domain-Driven Design</cite>. Decisões de implementação e desenvolvimento dos padrões.</p><p>Converse com um especialista: quando o preço fica fixo? A reserva pode expirar? O que significa confirmar? Use as respostas para revisar o modelo.</p></div></section><footer><div class="footer-line"><span><strong>DDD na prática</strong> · Arquitetura de Software · C#</span><span>Material independente · funciona sem internet</span></div></footer></main></div><script>
+    'use strict';
+    const themeBtn = document.getElementById('themeBtn');
+    function applyTheme(dark) {
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      themeBtn.textContent = dark ? 'Modo claro' : 'Modo escuro';
+    }
+    try { applyTheme(localStorage.getItem('dddTheme') === 'dark'); } catch { applyTheme(false); }
+    themeBtn.addEventListener('click', () => {
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      applyTheme(dark);
+      try { localStorage.setItem('dddTheme', dark ? 'dark' : 'light'); } catch { /* armazenamento opcional */ }
+    });
+
+    const progressEl = document.getElementById('readProgress');
+    function updateProgress() {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progressEl.style.width = (max > 0 ? Math.min(100, Math.round(window.scrollY / max * 100)) : 100) + '%';
+    }
+    window.addEventListener('scroll', updateProgress, {passive:true});
+    window.addEventListener('resize', updateProgress);
+    updateProgress();
+
+    const navItems = Array.from(document.querySelectorAll('#lessonNav a'));
+    const sections = Array.from(document.querySelectorAll('main header[id], main section[id]'));
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => {
+        const visible = entries.filter(x => x.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length) {
+          navItems.forEach(link => link.classList.toggle('active', link.getAttribute('href') === '#' + visible[0].target.id));
+        }
+      }, {rootMargin:'-10% 0px -65% 0px', threshold:[0, .1, .25]});
+      sections.forEach(section => observer.observe(section));
+    }
+
+    async function copyText(text, button) {
+      const original = button.textContent;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const area = document.createElement('textarea');
+          area.value = text;
+          area.style.position = 'fixed'; area.style.opacity = '0';
+          document.body.appendChild(area); area.select();
+          if (!document.execCommand('copy')) throw new Error('Falha ao copiar');
+          area.remove();
+        }
+        button.textContent = 'Copiado!';
+      } catch {
+        button.textContent = 'Selecione o código';
+      }
+      setTimeout(() => button.textContent = original, 1900);
+    }
+    document.querySelectorAll('.copy').forEach(button => {
+      button.addEventListener('click', () => {
+        const code = button.parentElement.querySelector('code');
+        if (code) copyText(code.textContent.trim(), button);
+      });
+    });
+
+document.getElementById('printBtn').addEventListener('click',()=>window.print());
+let quantity=0,confirmed=false,eventCount=0;
+const money=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
+function showOrder(message){document.getElementById('orderStatus').textContent=confirmed?'Confirmado':'Rascunho';document.getElementById('orderQty').textContent=quantity;document.getElementById('orderTotal').textContent=money.format(quantity*100);document.getElementById('orderMessage').textContent=message;document.getElementById('orderEvents').textContent='Eventos PedidoConfirmado: '+eventCount;}
+document.getElementById('addItem').addEventListener('click',()=>{const qty=Number(document.getElementById('qty').value);if(confirmed)return showOrder('Rejeitado: pedido confirmado não pode ser alterado.');if(qty<=0)return showOrder('Rejeitado: quantidade deve ser positiva.');quantity+=qty;showOrder('Item adicionado pela raiz do agregado.');});
+document.getElementById('confirmOrder').addEventListener('click',()=>{if(confirmed)return showOrder('Rejeitado: pedido já confirmado.');if(quantity===0)return showOrder('Rejeitado: pedido vazio não pode ser confirmado.');confirmed=true;eventCount++;showOrder('Confirmado. O fato PedidoConfirmado foi registrado.');});
+document.getElementById('resetOrder').addEventListener('click',()=>{quantity=0;confirmed=false;eventCount=0;showOrder('Novo rascunho criado.');});showOrder('Adicione um item ou tente confirmar o pedido vazio.');
+const questions=[{"q":"O que orienta DDD?","options":["Quantidade de interfaces","Negócio e colaboração","Divisão em microserviços"],"answer":1,"why":"O conhecimento do domínio orienta a linguagem e o modelo."},{"q":"Produto tem significados distintos em Vendas e Estoque. O que ajuda?","options":["Classe global com todos os campos","Modelos delimitados por contexto","Mesmo objeto em toda a empresa"],"answer":1,"why":"Cada contexto define o significado dos conceitos necessários."},{"q":"Dinheiro é comparado por valor e moeda. Isso sugere:","options":["Objeto de valor","Entidade obrigatória","Serviço de aplicação"],"answer":0,"why":"Sua igualdade depende de atributos, não de identidade."},{"q":"Quem protege a regra de não confirmar pedido vazio?","options":["Somente a tela","O serviço de e-mail","A raiz Pedido"],"answer":2,"why":"A raiz protege a invariante para qualquer consumidor."},{"q":"ConfirmarPedido e PedidoConfirmado representam:","options":["Duas tabelas","Uma solicitação e um fato","Dois comandos"],"answer":1,"why":"O comando pode ser rejeitado; o evento representa um sucesso ocorrido."},{"q":"Quem coordena obter, confirmar e salvar o pedido?","options":["Serviço de aplicação","Objeto Dinheiro","Apenas a interface visual"],"answer":0,"why":"A aplicação coordena; o agregado decide as regras de confirmação."},{"q":"DDD exige Event Sourcing e microserviços?","options":["Sempre","Somente em C#","Não"],"answer":2,"why":"São decisões independentes; um monólito com estado atual pode usar DDD."},{"q":"O repositório do laboratório oferece:","options":["Entrega garantida de mensagens","Acesso a objetos em memória","Transações entre processos"],"answer":1,"why":"Ele não implementa persistência, isolamento ou publicação confiável."},{"q":"Como definir o limite de um agregado?","options":["Pelas invariantes de consistência","Por todos os dados relacionados","Por todas as tabelas"],"answer":0,"why":"Dados relacionados não precisam estar todos no mesmo limite de consistência."},{"q":"Quando considerar um serviço de domínio?","options":["Em toda gravação","Quando uma regra não cabe naturalmente em entidade ou valor","Para exibir mensagens"],"answer":1,"why":"Ele representa operações do negócio, e não substitui aplicação ou infraestrutura."}];
+    const quizContainer = document.getElementById('quizContainer');
+    function renderQuiz() {
+      quizContainer.innerHTML = '';
+      questions.forEach((q, i) => {
+        const article = document.createElement('article'); article.className = 'quiz-question';
+        const num = document.createElement('div'); num.className = 'qnum'; num.textContent = 'Questão ' + (i+1) + ' de ' + questions.length;
+        const heading = document.createElement('h3'); heading.textContent = q.q;
+        const options = document.createElement('div'); options.className = 'quiz-options';
+        q.options.forEach((option, j) => {
+          const label = document.createElement('label'); label.className = 'quiz-option';
+          const input = document.createElement('input'); input.type = 'radio'; input.name = 'question-' + i; input.value = j;
+          const text = document.createElement('span'); text.textContent = option;
+          label.append(input,text); options.appendChild(label);
+        });
+        const feedback = document.createElement('div'); feedback.className = 'quiz-feedback'; feedback.setAttribute('aria-live','polite');
+        article.append(num,heading,options,feedback); quizContainer.appendChild(article);
+      });
+      document.getElementById('quizScore').textContent = '';
+    }
+    renderQuiz();
+    document.getElementById('gradeQuiz').addEventListener('click', () => {
+      let correct = 0, unanswered = 0;
+      const cards = Array.from(quizContainer.querySelectorAll('.quiz-question'));
+      cards.forEach((card, i) => {
+        const q = questions[i];
+        const checked = card.querySelector('input:checked');
+        if (!checked) unanswered++;
+        const selected = checked ? Number(checked.value) : -1;
+        if (selected === q.answer) correct++;
+        card.querySelectorAll('.quiz-option').forEach((label, j) => {
+          label.classList.toggle('correct', j === q.answer);
+          label.classList.toggle('incorrect', j === selected && selected !== q.answer);
+        });
+        const feedback = card.querySelector('.quiz-feedback');
+        feedback.style.display = 'block';
+        feedback.textContent = (selected === q.answer ? 'Correto! ' : selected < 0 ? 'Sem resposta. ' : 'Revise: ') + q.why;
+      });
+      const score = document.getElementById('quizScore');
+      score.textContent = 'Resultado: ' + correct + '/' + questions.length + ' acertos' + (unanswered ? ' · ' + unanswered + ' sem resposta' : '');
+      score.scrollIntoView({behavior:'smooth',block:'nearest'});
+    });
+    document.getElementById('resetQuiz').addEventListener('click', () => {renderQuiz(); document.getElementById('quiz').scrollIntoView({behavior:'smooth'});});
+  </script></body></html>

@@ -1,0 +1,14 @@
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\bin\Debug\net8.0\MiniLojaDDD.exe
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\bin\Debug\net8.0\MiniLojaDDD.deps.json
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\bin\Debug\net8.0\MiniLojaDDD.runtimeconfig.json
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\bin\Debug\net8.0\MiniLojaDDD.dll
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\bin\Debug\net8.0\MiniLojaDDD.pdb
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\obj\Debug\net8.0\MiniLojaDDD.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\obj\Debug\net8.0\MiniLojaDDD.AssemblyInfoInputs.cache
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\obj\Debug\net8.0\MiniLojaDDD.AssemblyInfo.cs
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\obj\Debug\net8.0\MiniLojaDDD.csproj.CoreCompileInputs.cache
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\obj\Debug\net8.0\MiniLojaDDD.dll
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\obj\Debug\net8.0\refint\MiniLojaDDD.dll
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\obj\Debug\net8.0\MiniLojaDDD.pdb
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\obj\Debug\net8.0\MiniLojaDDD.genruntimeconfig.cache
+C:\Users\Flex\OneDrive\Documents\aula_solid\MiniLojaDDD\obj\Debug\net8.0\ref\MiniLojaDDD.dll

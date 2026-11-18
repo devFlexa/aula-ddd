@@ -1,0 +1,720 @@
+//<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Aula interativa de SOLID com exemplos em C#, analogias, diagramas, exercícios e quiz.">
+  <title>SOLID na prática | Aula interativa de Arquitetura de Software</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fc; --paper: #ffffff; --paper-2:#f8fbff; --ink:#14233d; --muted:#56657a;
+      --navy:#122945; --blue:#155bbc; --blue-2:#eaf2ff; --orange:#d8750e; --orange-2:#fff3e2;
+      --line:#dbe4f0; --good:#147856; --good-2:#e8f6f0; --bad:#ad4d34; --bad-2:#fff1ec;
+      --shadow:0 14px 42px rgba(24,54,95,.08); --code:#101d30; --code-ink:#e8f0ff;
+    }
+    [data-theme="dark"] {
+      color-scheme:dark;
+      --bg:#0e1827; --paper:#17253a; --paper-2:#1a2c45; --ink:#f0f5ff; --muted:#b4c3d7;
+      --navy:#122945; --blue:#80b5ff; --blue-2:#213b62; --orange:#ffb259; --orange-2:#3a2f27;
+      --line:#35465b; --good:#79e0b9; --good-2:#1d423a; --bad:#ffb0a0; --bad-2:#49332f;
+      --shadow:0 14px 42px rgba(0,0,0,.2); --code:#0b1422; --code-ink:#e8f0ff;
+    }
+    * {box-sizing:border-box}
+    html {scroll-behavior:smooth; scroll-padding-top:30px}
+    body {margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif;line-height:1.65}
+    button {font:inherit;cursor:pointer}
+    button:focus-visible,a:focus-visible,summary:focus-visible {outline:3px solid var(--orange);outline-offset:3px}
+    a {color:inherit}
+    .top-progress {height:5px;background:var(--line);position:fixed;top:0;left:0;right:0;z-index:100}
+    .top-progress > div {height:100%;width:0;background:linear-gradient(90deg,#2676e0,#f6a748);transition:width .15s}
+    .layout {display:grid;grid-template-columns:255px minmax(0,1fr);max-width:1600px;margin:auto;min-height:100vh}
+    .sidebar {position:sticky;top:0;height:100vh;padding:31px 20px 23px;background:#122945;color:#e9f1fc;display:flex;flex-direction:column;gap:18px;overflow-y:auto}
+    .brand {display:flex;align-items:center;gap:11px;padding:5px 8px 18px;border-bottom:1px solid #344965}
+    .brand-mark {display:grid;place-items:center;border:2px solid #ffb15c;border-radius:12px;width:43px;height:43px;color:#ffb15c;font-size:22px;font-weight:900}
+    .brand strong {display:block;font-size:15px;line-height:1.2}
+    .brand small {display:block;color:#aabdd6;font-size:11px;margin-top:4px;letter-spacing:.09em;text-transform:uppercase}
+    .nav-label {font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#95aecb;margin:3px 10px}
+    .nav {display:grid;gap:4px}
+    .nav a {padding:10px 12px;border-radius:10px;text-decoration:none;font-size:13.5px;font-weight:650;transition:.18s;display:flex;align-items:center;gap:10px;color:#d8e6f8}
+    .nav a:hover,.nav a.active {background:#284b76;color:#fff}
+    .nav a span {border-radius:7px;display:inline-grid;place-items:center;background:#345476;color:#fff;min-width:24px;height:24px;font-size:12px;font-weight:900}
+    .sidebar-note {margin-top:auto;border:1px solid #344e6b;border-radius:12px;padding:13px;color:#c4d6eb;font-size:12px;line-height:1.6}
+    .sidebar-note b {color:#ffd19a}
+    main {min-width:0;padding:38px clamp(22px,5vw,76px) 80px;max-width:1300px;width:100%;margin:0 auto}
+    .toolbar {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:23px}
+    .eyebrow {font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-weight:850}
+    .toolbar-actions {display:flex;gap:8px;flex-wrap:wrap}
+    .btn {border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;padding:9px 13px;font-size:12.5px;font-weight:750;box-shadow:0 2px 5px rgba(0,0,0,.02)}
+    .btn:hover {border-color:var(--blue);transform:translateY(-1px)}
+    .btn.primary {background:#1b5eb5;border-color:#1b5eb5;color:#fff}
+    .btn.orange {background:#dd7b16;border-color:#dd7b16;color:white}
+    .hero {background:linear-gradient(128deg,#112b4c 0%,#1a4c85 72%,#225da0 100%);color:#fff;border-radius:24px;padding:clamp(25px,5vw,55px);box-shadow:0 20px 45px rgba(16,47,88,.19);overflow:hidden;position:relative}
+    .hero::after {content:'';position:absolute;width:280px;height:280px;border:55px solid rgba(255,255,255,.045);border-radius:50%;right:-150px;top:-150px}
+    .hero h1 {font-size:clamp(45px,7vw,83px);letter-spacing:-.065em;line-height:1.06;margin:12px 0 15px;font-weight:900}
+    .hero h1 em {font-style:normal;color:#ffb360}
+    .hero .lead {font-size:clamp(17px,2vw,20px);max-width:690px;color:#e2edfa;line-height:1.6}
+    .hero .meta {display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 31px}
+    .meta span {padding:6px 11px;border:1px solid rgba(255,255,255,.3);border-radius:25px;background:rgba(255,255,255,.07);font-size:12px;font-weight:700}
+    .hero-actions {display:flex;gap:10px;flex-wrap:wrap}
+    .hero-actions a {text-decoration:none;border-radius:10px;padding:12px 18px;font-weight:800;font-size:14px;background:#f2a145;color:#1c2d43}
+    .hero-actions a.alt {color:#fff;background:transparent;border:1px solid #7397c4}
+    .letter-strip {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:23px}
+    .letter {background:var(--paper);border:1px solid var(--line);border-radius:15px;padding:15px 10px;text-align:center;box-shadow:var(--shadow);min-width:0}
+    .letter b {display:block;font-size:clamp(32px,4vw,48px);font-weight:900;line-height:1.1;color:var(--blue)}
+    .letter span {display:block;font-size:12px;font-weight:750;color:var(--ink);line-height:1.25;margin-top:6px}
+    .letter small {display:block;font-size:11px;color:var(--muted);margin-top:5px;line-height:1.3}
+    section {margin-top:65px;scroll-margin-top:25px}
+    .section-head {display:flex;gap:17px;align-items:flex-start;margin-bottom:22px}
+    .section-marker {width:53px;height:53px;flex:none;display:grid;place-items:center;border-radius:14px;background:var(--blue-2);color:var(--blue);font-weight:900;font-size:28px;border:1px solid var(--line)}
+    h2 {font-size:clamp(29px,3vw,38px);line-height:1.16;letter-spacing:-.035em;margin:3px 0 10px}
+    h3 {font-size:19px;line-height:1.3;margin:0 0 11px}
+    h4 {font-size:15px;line-height:1.4;margin:0 0 9px}
+    .section-desc {color:var(--muted);font-size:15px;max-width:790px;margin:0}
+    .panel {border:1px solid var(--line);border-radius:18px;padding:24px;background:var(--paper);box-shadow:var(--shadow)}
+    .panel + .panel {margin-top:16px}
+    .panel p:last-child {margin-bottom:0}
+    .two-col {display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .three-col {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+    .pill {display:inline-block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;background:var(--blue-2);color:var(--blue);margin-bottom:11px}
+    .pill.orange {background:var(--orange-2);color:var(--orange)}
+    .note {border-left:4px solid #e58d26;padding:13px 16px;background:var(--orange-2);border-radius:0 10px 10px 0;color:var(--ink);font-size:14px}
+    .rule {color:var(--blue);font-size:20px;font-weight:850;line-height:1.4;margin:2px 0 12px}
+    .analogy {display:flex;gap:17px;align-items:start;background:var(--paper-2);padding:19px;border:1px solid var(--line);border-radius:13px;margin-bottom:18px}
+    .analogy-number {width:45px;height:45px;flex:none;border-radius:12px;display:grid;place-items:center;background:#fff1da;color:#93500c;font-size:22px;font-weight:900}
+    [data-theme="dark"] .analogy-number {background:#44341c;color:#ffd19a}
+    .analogy p {margin:5px 0 0;font-size:14px;color:var(--muted)}
+    .comparison {display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+    .compare {min-width:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:var(--paper)}
+    .compare .compare-header {display:flex;justify-content:space-between;align-items:center;gap:8px;padding:13px 16px;background:var(--bad-2);color:var(--bad);font-weight:900;font-size:14px}
+    .compare.good .compare-header {background:var(--good-2);color:var(--good)}
+    .compare .compare-text {padding:12px 16px;color:var(--muted);font-size:13px;line-height:1.45;min-height:66px}
+    .code-wrap {position:relative;background:var(--code);min-width:0}
+    pre {margin:0;padding:21px 17px 18px;overflow:auto;color:var(--code-ink);font:12.5px/1.68 Consolas,'Cascadia Code',Menlo,monospace;tab-size:2;white-space:pre}
+    .copy {position:absolute;top:9px;right:9px;z-index:2;border:1px solid #62738b;background:#263952;color:#e7f1ff;border-radius:7px;padding:5px 8px;font-size:11px;font-weight:800}
+    .copy:hover {background:#3d5475}
+    .diagram-wrap {margin:16px 0 4px;border:1px solid var(--line);border-radius:15px;background:var(--paper-2);padding:18px}
+    .diagram-title {font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:900;margin-bottom:13px}
+    .diagram-grid {display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .diagram-half {background:var(--paper);border-radius:12px;padding:13px;border:1px solid var(--line)}
+    .diagram-label {font-weight:900;font-size:12px;color:var(--muted);margin-bottom:10px}
+    .diagram-core {display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;min-height:130px}
+    .diagram-box {min-width:95px;max-width:100%;text-align:center;border:2px solid #95b7e5;background:var(--blue-2);padding:10px 12px;border-radius:11px;color:var(--ink);font-size:12px;font-weight:850;line-height:1.35}
+    .diagram-box.wrong {background:var(--bad-2);border-color:#e6a796}
+    .diagram-box.good {background:var(--good-2);border-color:#92c4b1}
+    .diagram-box.orange {background:var(--orange-2);border-color:#efc18c}
+    .diagram-box small {display:block;font-weight:500;font-size:10px;margin-top:4px;color:var(--muted)}
+    .arrow {font-size:21px;color:var(--blue);font-weight:900;line-height:1}
+    .vertical-stack {display:flex;flex-direction:column;align-items:center;gap:7px}
+    .mini-stack {display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+    .mini-stack .diagram-box {min-width:75px}
+    .takeaway {display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:17px}
+    .takeaway > div {padding:16px;border-radius:12px;background:var(--paper-2);border:1px solid var(--line);font-size:13px}
+    .takeaway strong {display:block;margin-bottom:6px;color:var(--blue);font-size:13px}
+    .takeaway p {margin:0;color:var(--muted)}
+    .prompt {background:var(--orange-2);border:1px solid #edc696;border-radius:14px;padding:18px;margin-top:17px}
+    [data-theme="dark"] .prompt {border-color:#74522d}
+    .prompt strong {font-size:14px}
+    .prompt p {font-size:14px;margin:7px 0 12px}
+    details {border:1px solid var(--line);border-radius:10px;background:var(--paper);margin-top:10px;overflow:hidden}
+    summary {padding:11px 14px;font-size:13px;font-weight:850;cursor:pointer;color:var(--blue)}
+    details .answer {padding:0 14px 14px;font-size:13px;color:var(--ink)}
+    details .answer p {margin:0 0 7px}
+    .experience {background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:23px;box-shadow:var(--shadow)}
+    .experience-grid {display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:stretch}
+    .form-row {display:grid;gap:8px;margin:14px 0}
+    .form-row label {font-size:13px;font-weight:800}
+    select {border:1px solid var(--line);background:var(--paper-2);border-radius:10px;color:var(--ink);padding:11px 12px;width:100%;font-size:14px}
+    .receipt {border:2px dashed #a4b8d3;background:var(--paper-2);border-radius:12px;padding:21px;display:flex;flex-direction:column;justify-content:center;gap:8px;font-size:14px}
+    .receipt .rowline {display:flex;justify-content:space-between;gap:9px}
+    .receipt hr {width:100%;border:0;border-top:1px solid var(--line)}
+    .receipt .total {font-size:24px;font-weight:900;color:var(--blue)}
+    .receipt .muted {font-size:12px;color:var(--muted)}
+    .split-head {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 14px}
+    .small-text {color:var(--muted);font-size:13px}
+    .lab-steps {counter-reset:step;display:grid;gap:11px;margin:17px 0}
+    .lab-step {counter-increment:step;display:flex;gap:12px;padding:13px;background:var(--paper-2);border:1px solid var(--line);border-radius:12px}
+    .lab-step::before {content:counter(step);width:26px;height:26px;flex:none;display:grid;place-items:center;background:var(--blue-2);border-radius:8px;font-weight:900;color:var(--blue)}
+    .lab-step div {font-size:14px}
+    .lab-step strong {display:block}
+    .quiz-question {padding:20px;border:1px solid var(--line);background:var(--paper);border-radius:15px;margin-bottom:14px}
+    .quiz-question h3 {font-size:16px;margin-bottom:13px}
+    .quiz-question .qnum {font-size:12px;color:var(--blue);font-weight:900;letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px}
+    .quiz-options {display:grid;gap:9px}
+    .quiz-option {display:flex;gap:11px;align-items:start;background:var(--paper-2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;cursor:pointer;font-size:14px;line-height:1.4}
+    .quiz-option:hover {border-color:#94b5e0}
+    .quiz-option input {margin-top:3px;accent-color:#2168c7}
+    .quiz-option.correct {border-color:#469b7c;background:var(--good-2)}
+    .quiz-option.incorrect {border-color:#dc9382;background:var(--bad-2)}
+    .quiz-feedback {display:none;font-size:13px;margin-top:12px;padding:11px 13px;background:var(--blue-2);color:var(--ink);border-radius:10px}
+    .score {font-size:20px;font-weight:900;color:var(--blue);padding:14px 0}
+    footer {margin-top:70px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+    .footer-line {display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+    .hide-on-screen {display:none}
+    @media (max-width:1100px) { .layout {grid-template-columns:214px minmax(0,1fr)} .sidebar{padding:25px 13px} main{padding:30px 24px 55px} .comparison{grid-template-columns:1fr} .compare .compare-text{min-height:0} }
+    @media (max-width:760px) { .layout {display:block} .sidebar{position:relative;height:auto;display:block;padding:14px 16px} .brand{padding-bottom:11px;margin-bottom:7px} .nav-label,.sidebar-note{display:none} .nav{display:flex;overflow-x:auto;gap:7px} .nav a{flex:none;white-space:nowrap;padding:8px} .nav a span{display:none} main{padding:22px 14px 45px} .toolbar{align-items:start} .hero{border-radius:17px;padding:26px 20px} .letter-strip{gap:5px} .letter{padding:12px 4px} .letter span{font-size:10px} .letter small{font-size:9px} .two-col,.three-col,.diagram-grid,.takeaway,.experience-grid{grid-template-columns:1fr} .panel,.experience{padding:17px} .section-head{gap:12px} .section-marker{width:42px;height:42px;font-size:23px} section{margin-top:45px} .diagram-core{min-height:90px} }
+    @media (prefers-reduced-motion:reduce) { html {scroll-behavior:auto} *,*::before,*::after {transition:none!important} }
+    @media print { :root{--bg:#fff;--ink:#000;--paper:#fff;--paper-2:#fff;--muted:#343434;--line:#ccc;--blue:#174f9a;--blue-2:#eaf2ff} body{background:#fff;font-size:11pt} .layout{display:block} .sidebar,.top-progress,.toolbar-actions,.hero-actions,.copy,.btn,.quiz-actions{display:none!important} main{padding:0;max-width:none} .hero{padding:25px;color:#fff;print-color-adjust:exact} section{margin-top:28px;break-before:auto} .panel,.compare,.quiz-question,.analogy,.diagram-wrap{break-inside:avoid;box-shadow:none} .comparison,.two-col,.diagram-grid{grid-template-columns:1fr 1fr} .letter-strip{grid-template-columns:repeat(5,1fr)} pre{font-size:9pt;white-space:pre-wrap;overflow:visible;word-wrap:break-word;print-color-adjust:exact} details .answer{display:block} details {break-inside:avoid} .hide-on-screen{display:block} a{text-decoration:none} }
+  .concept-note{margin-top:18px}.concept-note p{margin:6px 0}.solid-figure{margin:20px 0}.solid-figure svg{display:block;width:100%;height:auto;color:var(--blue)}.visual-node rect{fill:var(--blue-2);stroke:var(--blue);stroke-width:1.5}.visual-node.good rect{fill:var(--good-2);stroke:var(--good)}.visual-node text{fill:var(--ink);font:700 14px Segoe UI,Arial,sans-serif}.visual-node .visual-sub{font-size:12px;font-weight:400;fill:var(--muted)}.visual-arrow{stroke:var(--blue);stroke-width:2;fill:none;marker-end:var(--arrowhead)}figcaption{font-size:13px;color:var(--muted);margin-top:10px}.objective-list{padding-left:22px}.skip-link{position:fixed;top:-100px;left:12px;z-index:200;background:var(--paper);padding:12px}.skip-link:focus{top:10px}select:focus-visible,input:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+.example-diagrams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.example-diagrams .solid-figure{margin:0;padding:14px;min-width:0}.solid-figure.bad .diagram-title{color:var(--bad)}.solid-figure.good .diagram-title{color:var(--good)}.visual-node.wrong rect{fill:var(--bad-2);stroke:var(--bad)}.example-diagrams .visual-node text{font-size:13px}.example-diagrams .visual-node .visual-sub{font-size:11px}.example-diagrams figcaption{font-size:12px;line-height:1.5}@media(max-width:900px){.example-diagrams{grid-template-columns:1fr}.example-diagrams svg{max-width:400px;margin:auto}}@media print{.example-diagrams{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <div class="top-progress" aria-hidden="true"><div id="readProgress"></div></div>
+  <div class="layout">
+    <aside class="sidebar" aria-label="Navegação da aula">
+      <div class="brand"><div class="brand-mark">{ }</div><div><strong>ARQUITETURA<br>DE SOFTWARE</strong><small>Aula interativa</small></div></div>
+      <p class="nav-label">Conteúdo</p>
+      <nav class="nav" id="lessonNav">
+        <a href="#inicio" class="active">Visão geral</a>
+        <a href="#fundamentos">Por que SOLID?</a>
+        <a href="#srp"><span>S</span>Responsabilidade</a>
+        <a href="#ocp"><span>O</span>Aberto / fechado</a>
+        <a href="#lsp"><span>L</span>Substituição</a>
+        <a href="#isp"><span>I</span>Interfaces</a>
+        <a href="#dip"><span>D</span>Inversão</a>
+        <a href="#simulador">Simulação</a>
+        <a href="#laboratorio">Laboratório C#</a>
+        <a href="#quiz">Quiz e revisão</a>
+      </nav>
+      <div class="sidebar-note"><b>Ideia central</b><br>Organizar responsabilidades e dependências para facilitar mudanças sem quebrar o restante do sistema.</div>
+    </aside>
+    <main id="conteudo">
+      <div class="toolbar"><span class="eyebrow">Trilha de desenvolvimento de sistemas</span><div class="toolbar-actions"><button class="btn" id="themeBtn" type="button">Modo escuro</button><button class="btn" onclick="window.print()" type="button">Imprimir / PDF</button></div></div>
+      <header id="inicio" class="hero">
+        <div class="eyebrow" style="color:#ffc681">Fundamentos de programação orientada a objetos</div>
+        <h1>Entenda o <em>SOLID.</em></h1>
+        <p class="lead">Cinco princípios para escrever código mais fácil de entender, testar, manter e evoluir — com exemplos reais de uma <strong>loja virtual em C#</strong>.</p>
+        <div class="meta"><span>Exemplos antes e depois</span><span>Diagramas</span><span>Prática + quiz</span></div>
+        <div class="hero-actions"><a href="#fundamentos">Começar a aula</a><a class="alt" href="#laboratorio">Ir para a prática</a></div>
+      </header>
+      <div class="letter-strip" aria-label="Os cinco princípios de SOLID">
+        <div class="letter"><b>S</b><span>Single Responsibility</span><small>Um motivo para mudar</small></div>
+        <div class="letter"><b>O</b><span>Open / Closed</span><small>Estender sem reescrever</small></div>
+        <div class="letter"><b>L</b><span>Liskov Substitution</span><small>Respeitar o contrato</small></div>
+        <div class="letter"><b>I</b><span>Interface Segregation</span><small>Interfaces sob medida</small></div>
+        <div class="letter"><b>D</b><span>Dependency Inversion</span><small>Depender de contratos</small></div>
+      </div>
+
+      <section id="fundamentos">
+        <div class="section-head"><div class="section-marker">01</div><div><span class="eyebrow">Introdução</span><h2>Por que precisamos do SOLID?</h2><p class="section-desc">O desafio não é apenas fazer o programa funcionar hoje. É conseguir alterar uma regra amanhã sem modificar uma dezena de arquivos.</p></div></div>
+        <div class="panel"><span class="pill">Antes de começar</span><h3>O que você vai conseguir fazer</h3><ul class="objective-list"><li>Identificar o motivo de mudança e a dependência que dificultam uma evolução.</li><li>Refatorar um checkout sem alterar os resultados esperados.</li><li>Explicar e verificar o contrato de implementações substituíveis.</li><li>Justificar quando uma abstração vale o custo.</li></ul><p class="small-text"><b>Pré-requisitos:</b> classes, interfaces, construtores, exceções e decimal em C#. Os trechos de cada princípio são recortes didáticos independentes; o laboratório é o programa completo.</p></div><div class="two-col" style="margin-top:16px">
+          <div class="panel"><span class="pill orange">Código difícil de evoluir</span><h3>Uma única classe faz tudo</h3><p>O sistema calcula descontos, salva pedidos, envia mensagens e imprime etiquetas dentro de um único método.</p><p class="small-text"><b>Resultado:</b> cada mudança pode afetar várias funcionalidades não relacionadas.</p></div>
+          <div class="panel"><span class="pill">Código organizado</span><h3>Cada parte tem um papel claro</h3><p>Validação, desconto, persistência e notificação possuem responsabilidades e contratos definidos.</p><p class="small-text"><b>Resultado:</b> mudanças são mais localizadas e testes ficam mais simples.</p></div>
+        </div>
+        <div class="diagram-wrap">
+          <div class="diagram-title">Mesma loja, duas formas de organizar o software</div>
+          <div class="diagram-grid">
+            <div class="diagram-half"><div class="diagram-label">ANTES · tudo conectado</div><div class="diagram-core"><div class="diagram-box wrong">SuperClasseLoja<small>Desconto + banco + e-mail + frete + cobrança</small></div></div></div>
+            <div class="diagram-half"><div class="diagram-label">DEPOIS · componentes com papéis claros</div><div class="diagram-core"><div class="vertical-stack"><div class="diagram-box">Checkout</div><span class="arrow">↓</span><div class="mini-stack"><div class="diagram-box good">Descontos</div><div class="diagram-box good">Pedidos</div><div class="diagram-box good">Notificações</div></div></div></div></div>
+          </div>
+        </div>
+        <p class="note" style="margin-top:15px"><strong>Atenção:</strong> SOLID não é uma biblioteca, um framework nem um padrão obrigatório para qualquer classe. São princípios para orientar decisões de design, especialmente quando o código precisa evoluir.</p>
+      </section>
+
+      <section id="srp">
+        <div class="section-head"><div class="section-marker">S</div><div><span class="eyebrow">Princípio 1</span><h2>Single Responsibility Principle</h2><p class="section-desc">Princípio da Responsabilidade Única (SRP)</p></div></div>
+        <div class="panel"><div class="rule">“Uma classe deve ter apenas um motivo para mudar.”</div><div class="analogy"><div class="analogy-number">S</div><div><strong>Analogia: uma pequena loja</strong><p>Imagine que a mesma pessoa é caixa, entregador e contador. Uma mudança no imposto, na entrega ou na forma de pagamento afeta seu trabalho. Separar funções dá clareza à operação.</p></div></div>
+          <div class="example-diagrams"><figure class="diagram-wrap solid-figure bad"><div class="diagram-title">ANTES · Cenário problemático</div><svg viewBox="0 0 340 185" role="img" aria-labelledby="visual-srp-bad-title visual-srp-bad-desc"><title id="visual-srp-bad-title">SRP: ANTES · Cenário problemático</title><desc id="visual-srp-bad-desc">Negócio, banco e comunicação mudam a mesma classe. A seta indica a relação entre os elementos descritos.</desc><defs><marker id="head-srp-bad" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="currentColor"/></marker></defs><g style="--arrowhead:url(#head-srp-bad)"><g class="visual-node wrong"><rect x="20" y="58" width="300" height="54" rx="10"/><text x="170" y="80" text-anchor="middle">PedidoService</text><text class="visual-sub" x="170" y="99" text-anchor="middle">valida + salva + envia e-mail</text></g></g></svg><figcaption>Negócio, banco e comunicação mudam a mesma classe.</figcaption></figure><figure class="diagram-wrap solid-figure good"><div class="diagram-title">DEPOIS · Solução melhorada</div><svg viewBox="0 0 340 185" role="img" aria-labelledby="visual-srp-good-title visual-srp-good-desc"><title id="visual-srp-good-title">SRP: DEPOIS · Solução melhorada</title><desc id="visual-srp-good-desc">O serviço coordena colaboradores com motivos de mudança distintos. A seta indica chamadas do coordenador aos colaboradores.</desc><defs><marker id="head-srp-good" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="currentColor"/></marker></defs><g style="--arrowhead:url(#head-srp-good)"><g class="visual-node good"><rect x="20" y="15" width="300" height="54" rx="10"/><text x="170" y="37" text-anchor="middle">PedidoService</text><text class="visual-sub" x="170" y="56" text-anchor="middle">coordena o fluxo</text></g><g class="visual-node good"><rect x="20" y="115" width="300" height="54" rx="10"/><text x="170" y="137" text-anchor="middle">Validador · Repositório · E-mail</text><text class="visual-sub" x="170" y="156" text-anchor="middle">cada parte tem um papel</text></g><path d="M170 70 L170 110" class="visual-arrow"/></g></svg><figcaption>O serviço coordena colaboradores com motivos de mudança distintos.</figcaption></figure></div>
+          <div class="comparison">
+            <article class="compare"><div class="compare-header">ANTES · três motivos para mudar</div><div class="compare-text">A mesma classe valida, persiste e notifica.</div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public class PedidoService
+{
+    public void Finalizar(Pedido pedido)
+    {
+        if (pedido.Total &lt;= 0)
+            throw new Exception("Total inválido");
+
+        Console.WriteLine("Salvando pedido");
+        Console.WriteLine("Enviando e-mail");
+    }
+}</code></pre></div></article>
+            <article class="compare good"><div class="compare-header">DEPOIS · papéis separados</div><div class="compare-text">O serviço coordena; cada dependência tem uma responsabilidade.</div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public class PedidoService
+{
+    private readonly ValidadorPedido _validador = new();
+    private readonly PedidoRepository _repo = new();
+    private readonly EmailConfirmacao _email = new();
+
+    public void Finalizar(Pedido pedido)
+    {
+        _validador.Validar(pedido);
+        _repo.Salvar(pedido);
+        _email.Enviar(pedido);
+    }
+}
+// Classes de apoio possuem suas próprias tarefas.</code></pre></div></article>
+          </div>
+          <div class="takeaway"><div><strong>Quando usar?</strong><p>Quando uma classe mistura regras de negócio, acesso ao banco, interface ou comunicação externa.</p></div><div><strong>Não confunda</strong><p>SRP não significa “uma classe com um único método”. Significa agrupar comportamentos que mudam pelo mesmo motivo.</p></div></div>
+          <div class="prompt"><strong>Para você pensar</strong><p>Se a empresa trocar o servidor de e-mail, qual classe deveria ser alterada?</p><details><summary>Revelar resposta comentada</summary><div class="answer"><p>Idealmente, apenas a implementação responsável pelo envio de e-mail. O cálculo do pedido não deveria mudar.</p></div></details></div>
+        </div>
+      <div class="note concept-note"><strong>Quem pede a mudança?</strong><p>Regras comerciais mudam por decisão do negócio; persistência muda por decisões de infraestrutura; mensagens mudam por decisões de comunicação. Use esses motivos para avaliar coesão. Coordenar colaboradores pode ser uma responsabilidade coesa.</p></div></section>
+
+      <section id="ocp">
+        <div class="section-head"><div class="section-marker">O</div><div><span class="eyebrow">Princípio 2</span><h2>Open / Closed Principle</h2><p class="section-desc">Princípio Aberto/Fechado (OCP)</p></div></div>
+        <div class="panel"><div class="rule">“Uma estrutura deve ser aberta para extensão e fechada para modificação.”</div><div class="analogy"><div class="analogy-number">O</div><div><strong>Analogia: controle de videogame</strong><p>Você pode conectar novos acessórios usando uma entrada compatível, sem desmontar o videogame a cada novidade. Em software, isso significa criar pontos de extensão estáveis.</p></div></div>
+          <div class="example-diagrams"><figure class="diagram-wrap solid-figure bad"><div class="diagram-title">ANTES · Cenário problemático</div><svg viewBox="0 0 340 185" role="img" aria-labelledby="visual-ocp-bad-title visual-ocp-bad-desc"><title id="visual-ocp-bad-title">OCP: ANTES · Cenário problemático</title><desc id="visual-ocp-bad-desc">Cada nova política exige alterar a calculadora. A seta indica a relação entre os elementos descritos.</desc><defs><marker id="head-ocp-bad" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="currentColor"/></marker></defs><g style="--arrowhead:url(#head-ocp-bad)"><g class="visual-node wrong"><rect x="20" y="15" width="300" height="54" rx="10"/><text x="170" y="37" text-anchor="middle">CalculadoraPreco</text><text class="visual-sub" x="170" y="56" text-anchor="middle">if VIP / else if Natal / ...</text></g><g class="visual-node wrong"><rect x="20" y="115" width="300" height="54" rx="10"/><text x="170" y="137" text-anchor="middle">Novo desconto</text><text class="visual-sub" x="170" y="156" text-anchor="middle">edita a calculadora</text></g><path d="M170 70 L170 110" class="visual-arrow"/></g></svg><figcaption>Cada nova política exige alterar a calculadora.</figcaption></figure><figure class="diagram-wrap solid-figure good"><div class="diagram-title">DEPOIS · Solução melhorada</div><svg viewBox="0 0 340 185" role="img" aria-labelledby="visual-ocp-good-title visual-ocp-good-desc"><title id="visual-ocp-good-title">OCP: DEPOIS · Solução melhorada</title><desc id="visual-ocp-good-desc">Novas políticas implementam o contrato; a seleção fica fora do cálculo. A seta liga o ponto de extensão às implementações disponíveis.</desc><defs><marker id="head-ocp-good" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="currentColor"/></marker></defs><g style="--arrowhead:url(#head-ocp-good)"><g class="visual-node good"><rect x="20" y="15" width="300" height="54" rx="10"/><text x="170" y="37" text-anchor="middle">CalculadoraPreco</text><text class="visual-sub" x="170" y="56" text-anchor="middle">usa IPoliticaDesconto</text></g><g class="visual-node good"><rect x="20" y="115" width="300" height="54" rx="10"/><text x="170" y="137" text-anchor="middle">VIP · Natal · Black Friday</text><text class="visual-sub" x="170" y="156" text-anchor="middle">implementam o contrato</text></g><path d="M170 70 L170 110" class="visual-arrow"/></g></svg><figcaption>Novas políticas implementam o contrato; a seleção fica fora do cálculo.</figcaption></figure></div>
+          <div class="comparison">
+            <article class="compare"><div class="compare-header">ANTES · regra crescente</div><div class="compare-text">Novo tipo de desconto exige editar o método existente.</div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public decimal Calcular(string tipo, decimal total)
+{
+    if (tipo == "vip")
+        return total * 0.90m;
+
+    if (tipo == "natal")
+        return total * 0.80m;
+
+    return total;
+}</code></pre></div></article>
+            <article class="compare good"><div class="compare-header">DEPOIS · extensão por estratégia</div><div class="compare-text">Novas classes implementam o mesmo contrato.</div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public interface IPoliticaDesconto
+{
+    decimal Aplicar(decimal total);
+}
+
+public class DescontoVip : IPoliticaDesconto
+{
+    public decimal Aplicar(decimal total)
+        =&gt; total * 0.90m;
+}
+
+public class CalculadoraPreco
+{
+    public decimal Calcular(decimal total,
+                            IPoliticaDesconto politica)
+        =&gt; politica.Aplicar(total);
+}</code></pre></div></article>
+          </div>
+          <div class="takeaway"><div><strong>Quando usar?</strong><p>Quando surgem frequentemente novos tipos de desconto, pagamento, relatório ou cálculo.</p></div><div><strong>Não confunda</strong><p>OCP não proíbe editar código. Ele sugere criar extensões onde existe variação recorrente e previsível.</p></div></div>
+          <div class="prompt"><strong>Desafio rápido</strong><p>Como criar um desconto de 25% sem alterar <code>CalculadoraPreco</code>?</p><details><summary>Ver uma possível implementação</summary><div class="answer"><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public class DescontoBlackFriday : IPoliticaDesconto
+{
+    public decimal Aplicar(decimal total)
+        =&gt; total * 0.75m;
+}</code></pre></div></div></details></div>
+        </div>
+      <div class="note concept-note"><strong>O que permanece fechado?</strong><p>Neste exemplo, a calculadora permanece estável para novos descontos. O ponto de composição ainda muda para escolher a estratégia. Corrigir um bug ou revisar o contrato exige editar código: OCP não promete imutabilidade.</p></div></section>
+
+      <section id="lsp">
+        <div class="section-head"><div class="section-marker">L</div><div><span class="eyebrow">Princípio 3</span><h2>Liskov Substitution Principle</h2><p class="section-desc">Princípio da Substituição de Liskov (LSP)</p></div></div>
+        <div class="panel"><div class="rule">“Uma implementação deve poder substituir outra sem violar o contrato esperado.”</div><div class="analogy"><div class="analogy-number">L</div><div><strong>Analogia: tomadas padronizadas</strong><p>Dois carregadores que prometem o mesmo padrão devem funcionar sem surpresas. Se um deles exige uma condição secreta ou quebra o equipamento, não respeita a promessa de compatibilidade.</p></div></div>
+          <div class="example-diagrams"><figure class="diagram-wrap solid-figure bad"><div class="diagram-title">ANTES · Cenário problemático</div><svg viewBox="0 0 340 185" role="img" aria-labelledby="visual-lsp-bad-title visual-lsp-bad-desc"><title id="visual-lsp-bad-title">LSP: ANTES · Cenário problemático</title><desc id="visual-lsp-bad-desc">A moto rejeita uma entrada aceita pelo contrato-base. A seta indica a relação entre os elementos descritos.</desc><defs><marker id="head-lsp-bad" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="currentColor"/></marker></defs><g style="--arrowhead:url(#head-lsp-bad)"><g class="visual-node wrong"><rect x="20" y="15" width="300" height="54" rx="10"/><text x="170" y="37" text-anchor="middle">Frete: peso positivo → preço</text><text class="visual-sub" x="170" y="56" text-anchor="middle">cliente consulta 8 kg</text></g><g class="visual-node wrong"><rect x="20" y="115" width="300" height="54" rx="10"/><text x="170" y="137" text-anchor="middle">FreteMoto</text><text class="visual-sub" x="170" y="156" text-anchor="middle">lança exceção para peso &gt; 5</text></g><path d="M170 70 L170 110" class="visual-arrow"/></g></svg><figcaption>A moto rejeita uma entrada aceita pelo contrato-base.</figcaption></figure><figure class="diagram-wrap solid-figure good"><div class="diagram-title">DEPOIS · Solução melhorada</div><svg viewBox="0 0 340 185" role="img" aria-labelledby="visual-lsp-good-title visual-lsp-good-desc"><title id="visual-lsp-good-title">LSP: DEPOIS · Solução melhorada</title><desc id="visual-lsp-good-desc">O contrato revisado admite indisponibilidade; os clientes também são atualizados. A seta indica a relação entre os elementos descritos.</desc><defs><marker id="head-lsp-good" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="currentColor"/></marker></defs><g style="--arrowhead:url(#head-lsp-good)"><g class="visual-node good"><rect x="20" y="15" width="300" height="54" rx="10"/><text x="170" y="37" text-anchor="middle">IFrete: preço ou null</text><text class="visual-sub" x="170" y="56" text-anchor="middle">cliente consulta 8 kg</text></g><g class="visual-node good"><rect x="20" y="115" width="300" height="54" rx="10"/><text x="170" y="137" text-anchor="middle">Moto: null · Caminhão: R$ 64</text><text class="visual-sub" x="170" y="156" text-anchor="middle">cliente trata ambos os resultados</text></g><path d="M170 70 L170 110" class="visual-arrow"/></g></svg><figcaption>O contrato revisado admite indisponibilidade; os clientes também são atualizados.</figcaption></figure></div>
+          <div class="comparison">
+            <article class="compare"><div class="compare-header">ANTES · promessa quebrada</div><div class="compare-text">A subclasse restringe entradas que a classe-base aceitava.</div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public abstract class Frete
+{
+    // Contrato: peso positivo =&gt; preço retornado.
+    public abstract decimal Calcular(decimal peso);
+}
+
+public class FreteMoto : Frete
+{
+    public override decimal Calcular(decimal peso)
+    {
+        if (peso &gt; 5)
+            throw new NotSupportedException();
+
+        return peso * 4m;
+    }
+}</code></pre></div></article>
+            <article class="compare good"><div class="compare-header">DEPOIS · mesma regra para todos</div><div class="compare-text">Um contrato claro expressa indisponibilidade sem surpresa.</div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public interface IFrete
+{
+    // Peso positivo. null = serviço indisponível.
+    decimal? Calcular(decimal peso);
+}
+
+public class FreteMoto : IFrete
+{
+    public decimal? Calcular(decimal peso)
+        =&gt; peso &gt; 5 ? null : peso * 4m;
+}
+
+public class FreteCaminhao : IFrete
+{
+    public decimal? Calcular(decimal peso)
+        =&gt; peso * 8m;
+}</code></pre></div></article>
+          </div>
+<details><summary>Como o consumidor trata as duas respostas?</summary><div class="answer"><p>O contrato mudou para admitir indisponibilidade. Atualize os clientes; trocar apenas a interface não corrige o sistema inteiro.</p><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>IFrete[] opcoes = { new FreteMoto(), new FreteCaminhao() };
+foreach (IFrete frete in opcoes)
+{
+    decimal? preco = frete.Calcular(8m);
+    Console.WriteLine(preco is decimal valor
+        ? $"Frete: {valor:C}"
+        : "Serviço indisponível para este peso");
+}
+// Moto: indisponível. Caminhão: R$ 64,00.</code></pre></div></div></details>
+          <div class="takeaway"><div><strong>Quando usar?</strong><p>Ao trabalhar com herança e implementações de interfaces que serão usadas de forma intercambiável.</p></div><div><strong>Não confunda</strong><p>Compilar não prova LSP. Também é preciso preservar expectativas: entradas válidas, saídas, efeitos e falhas previstos.</p></div></div>
+          <div class="prompt"><strong>Pergunta para a turma</strong><p>Se um sistema recebe qualquer <code>IFrete</code>, pode assumir que todo cálculo sempre terá um preço?</p><details><summary>Revelar resposta comentada</summary><div class="answer"><p>Não. O novo contrato permite <code>null</code> para indicar serviço indisponível. O consumidor deve tratar os dois resultados para qualquer implementação.</p></div></details></div>
+        </div>
+      <div class="note concept-note"><strong>Contrato é comportamento</strong><p>A implementação não deve exigir mais de quem chama nem garantir menos do que o contrato promete. Preserve também invariantes e efeitos observáveis. No frete, permitir null é uma mudança do contrato: todos os consumidores precisam passar a tratar a indisponibilidade.</p></div></section>
+
+      <section id="isp">
+        <div class="section-head"><div class="section-marker">I</div><div><span class="eyebrow">Princípio 4</span><h2>Interface Segregation Principle</h2><p class="section-desc">Princípio da Segregação de Interfaces (ISP)</p></div></div>
+        <div class="panel"><div class="rule">“Ninguém deve ser obrigado a depender de operações que não utiliza.”</div><div class="analogy"><div class="analogy-number">I</div><div><strong>Analogia: painel de uma máquina</strong><p>O operador de uma esteira precisa de botões de ligar e parar. Um painel separado por tarefa evita que ele dependa de controles de impressora, solda e empilhadeira. A interface deve atender ao consumidor que a utiliza.</p></div></div>
+          <div class="example-diagrams"><figure class="diagram-wrap solid-figure bad"><div class="diagram-title">ANTES · Cenário problemático</div><svg viewBox="0 0 340 185" role="img" aria-labelledby="visual-isp-bad-title visual-isp-bad-desc"><title id="visual-isp-bad-title">ISP: ANTES · Cenário problemático</title><desc id="visual-isp-bad-desc">Um contrato amplo impõe operações sem relação com o cliente. A seta indica a relação entre os elementos descritos.</desc><defs><marker id="head-isp-bad" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="currentColor"/></marker></defs><g style="--arrowhead:url(#head-isp-bad)"><g class="visual-node wrong"><rect x="20" y="15" width="300" height="54" rx="10"/><text x="170" y="37" text-anchor="middle">IOperacaoLoja</text><text class="visual-sub" x="170" y="56" text-anchor="middle">pagar + etiquetar + rastrear</text></g><g class="visual-node wrong"><rect x="20" y="115" width="300" height="54" rx="10"/><text x="170" y="137" text-anchor="middle">PagamentoPix</text><text class="visual-sub" x="170" y="156" text-anchor="middle">métodos sem utilidade</text></g><path d="M170 70 L170 110" class="visual-arrow"/></g></svg><figcaption>Um contrato amplo impõe operações sem relação com o cliente.</figcaption></figure><figure class="diagram-wrap solid-figure good"><div class="diagram-title">DEPOIS · Solução melhorada</div><svg viewBox="0 0 340 185" role="img" aria-labelledby="visual-isp-good-title visual-isp-good-desc"><title id="visual-isp-good-title">ISP: DEPOIS · Solução melhorada</title><desc id="visual-isp-good-desc">Cada consumidor depende apenas das operações de que precisa. As setas no texto indicam dependências de código.</desc><defs><marker id="head-isp-good" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="currentColor"/></marker></defs><g style="--arrowhead:url(#head-isp-good)"><g class="visual-node good"><rect x="20" y="15" width="300" height="54" rx="10"/><text x="170" y="37" text-anchor="middle">Checkout → IPagamento</text><text class="visual-sub" x="170" y="56" text-anchor="middle">conhece apenas pagamento</text></g><g class="visual-node good"><rect x="20" y="115" width="300" height="54" rx="10"/><text x="170" y="137" text-anchor="middle">Consulta → IRastreamento</text><text class="visual-sub" x="170" y="156" text-anchor="middle">conhece apenas rastreamento</text></g></g></svg><figcaption>Cada consumidor depende apenas das operações de que precisa.</figcaption></figure></div>
+          <div class="comparison">
+            <article class="compare"><div class="compare-header">ANTES · métodos inúteis</div><div class="compare-text">O pagamento é forçado a oferecer operações que não fazem parte do seu papel.</div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public interface IOperacaoLoja
+{
+    void Pagar(decimal total);
+    void EmitirEtiqueta();
+    void RastrearEntrega();
+}
+
+public class PagamentoPix : IOperacaoLoja
+{
+    public void Pagar(decimal total) { /* ... */ }
+
+    public void EmitirEtiqueta()
+        =&gt; throw new NotSupportedException();
+
+    public void RastrearEntrega()
+        =&gt; throw new NotSupportedException();
+}</code></pre></div></article>
+            <article class="compare good"><div class="compare-header">DEPOIS · cada recurso tem seu contrato</div><div class="compare-text">A classe implementa apenas o que realmente oferece.</div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public interface IPagamento
+{
+    void Pagar(decimal total);
+}
+
+public interface IEtiqueta
+{
+    void EmitirEtiqueta();
+}
+
+public interface IRastreamento
+{
+    void RastrearEntrega();
+}
+
+public class PagamentoPix : IPagamento
+{
+    public void Pagar(decimal total) { /* ... */ }
+}</code></pre></div></article>
+          </div>
+          <div class="takeaway"><div><strong>Quando usar?</strong><p>Quando clientes dependem de operações irrelevantes. Métodos vazios ou NotSupportedException em implementações podem indicar que o contrato reúne necessidades diferentes.</p></div><div><strong>Não confunda</strong><p>Não é necessário criar uma interface para cada método. Agrupe operações que fazem sentido para os mesmos consumidores.</p></div></div>
+          <div class="prompt"><strong>Pergunta para a turma</strong><p>Um sistema de rastreamento precisa conhecer o contrato <code>IPagamento</code>?</p><details><summary>Revelar resposta comentada</summary><div class="answer"><p>Não. Ele deve depender apenas do contrato necessário para rastrear entregas, por exemplo <code>IRastreamento</code>.</p></div></details></div>
+        </div>
+      <div class="note concept-note"><strong>Olhe pelo lado do consumidor</strong><p>Um serviço que só consulta entregas deve receber IRastreamento, mesmo que um fornecedor também implemente IPagamento. Interfaces menores reduzem dependências entre clientes com necessidades distintas; contar métodos não é o critério.</p></div></section>
+
+      <section id="dip">
+        <div class="section-head"><div class="section-marker">D</div><div><span class="eyebrow">Princípio 5</span><h2>Dependency Inversion Principle</h2><p class="section-desc">Princípio da Inversão de Dependência (DIP)</p></div></div>
+        <div class="panel"><div class="rule">“Regras de negócio devem depender de abstrações, não de implementações concretas.”</div><div class="analogy"><div class="analogy-number">D</div><div><strong>Analogia: tomada e aparelho</strong><p>Um aparelho foi projetado para um padrão de conexão, não para um modelo específico de extensão elétrica. Assim, o sistema pode trocar o componente conectado sem reconstruir a regra de negócio.</p></div></div>
+          <div class="example-diagrams"><figure class="diagram-wrap solid-figure bad"><div class="diagram-title">ANTES · Cenário problemático</div><svg viewBox="0 0 340 185" role="img" aria-labelledby="visual-dip-bad-title visual-dip-bad-desc"><title id="visual-dip-bad-title">DIP: ANTES · Cenário problemático</title><desc id="visual-dip-bad-desc">O checkout depende diretamente de um detalhe de infraestrutura. A seta indica a relação entre os elementos descritos.</desc><defs><marker id="head-dip-bad" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="currentColor"/></marker></defs><g style="--arrowhead:url(#head-dip-bad)"><g class="visual-node wrong"><rect x="20" y="15" width="300" height="54" rx="10"/><text x="170" y="37" text-anchor="middle">CheckoutService</text><text class="visual-sub" x="170" y="56" text-anchor="middle">cria EmailNotificador</text></g><g class="visual-node wrong"><rect x="20" y="115" width="300" height="54" rx="10"/><text x="170" y="137" text-anchor="middle">EmailNotificador</text><text class="visual-sub" x="170" y="156" text-anchor="middle">implementação fixa</text></g><path d="M170 70 L170 110" class="visual-arrow"/></g></svg><figcaption>O checkout depende diretamente de um detalhe de infraestrutura.</figcaption></figure><figure class="diagram-wrap solid-figure good"><div class="diagram-title">DEPOIS · Solução melhorada</div><svg viewBox="0 0 340 185" role="img" aria-labelledby="visual-dip-good-title visual-dip-good-desc"><title id="visual-dip-good-title">DIP: DEPOIS · Solução melhorada</title><desc id="visual-dip-good-desc">O núcleo usa o contrato; os adaptadores também dependem dele. A seta indica a dependência do adaptador em relação ao contrato.</desc><defs><marker id="head-dip-good" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="currentColor"/></marker></defs><g style="--arrowhead:url(#head-dip-good)"><g class="visual-node good"><rect x="20" y="15" width="300" height="54" rx="10"/><text x="170" y="37" text-anchor="middle">Checkout → INotificador</text><text class="visual-sub" x="170" y="56" text-anchor="middle">contrato definido pelo núcleo</text></g><g class="visual-node good"><rect x="20" y="115" width="300" height="54" rx="10"/><text x="170" y="137" text-anchor="middle">E-mail / SMS → INotificador</text><text class="visual-sub" x="170" y="156" text-anchor="middle">adaptadores implementam o contrato</text></g><path d="M170 115 L170 73" class="visual-arrow"/></g></svg><figcaption>O núcleo usa o contrato; os adaptadores também dependem dele.</figcaption></figure></div>
+          <div class="comparison">
+            <article class="compare"><div class="compare-header">ANTES · implementação fixa</div><div class="compare-text">Trocar e-mail por SMS exige mexer no checkout.</div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public class CheckoutService
+{
+    private readonly EmailNotificador _email = new();
+
+    public void Finalizar()
+    {
+        // ... regras do checkout ...
+        _email.Enviar("Pedido finalizado");
+    }
+}</code></pre></div></article>
+            <article class="compare good"><div class="compare-header">DEPOIS · dependência injetada</div><div class="compare-text">O checkout conhece apenas o contrato.</div><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public interface INotificador
+{
+    void Enviar(string mensagem);
+}
+
+public class CheckoutService
+{
+    private readonly INotificador _notificador;
+
+    public CheckoutService(INotificador notificador)
+        =&gt; _notificador = notificador;
+
+    public void Finalizar()
+        =&gt; _notificador.Enviar("Pedido finalizado");
+}
+// Exemplo de criação:
+// new CheckoutService(new EmailNotificador());</code></pre></div></article>
+          </div>
+          <div class="takeaway"><div><strong>Quando usar?</strong><p>Para integrar banco de dados, serviços externos, mensageria, pagamentos, notificadores e outros componentes substituíveis.</p></div><div><strong>DIP ≠ injeção de dependência</strong><p>DIP é o princípio de design. Injeção de dependência é uma técnica que ajuda a aplicá-lo; não exige framework.</p></div></div>
+          <div class="prompt"><strong>Pergunta para a turma</strong><p>Por que fica mais fácil testar <code>CheckoutService</code> quando ele recebe um <code>INotificador</code>?</p><details><summary>Revelar resposta comentada</summary><div class="answer"><p>O teste pode fornecer um notificador falso que apenas registra mensagens, sem enviar e-mails reais e sem depender da rede.</p></div></details></div>
+        </div>
+      <div class="note concept-note"><strong>Quem define a abstração?</strong><p>O contrato deve expressar a necessidade da regra de negócio. Checkout e adaptadores dependem desse contrato; o adaptador implementa a necessidade do núcleo. Injetar EmailNotificador concreto é injeção, mas mantém a dependência concreta. Não é preciso um contêiner de DI.</p></div></section>
+
+      <section id="simulador">
+        <div class="section-head"><div class="section-marker">↔</div><div><span class="eyebrow">Experimento interativo</span><h2>Troque peças sem refazer o checkout</h2><p class="section-desc">Mude a política de desconto e a forma de notificação. O fluxo central permanece o mesmo: esse é o valor de ter contratos e pontos de extensão.</p></div></div>
+        <div class="experience"><div class="experience-grid"><div><h3>Configure sua compra</h3><div class="form-row"><label for="discountSelect">Política de desconto</label><select id="discountSelect"><option value="0">Cliente comum · 0%</option><option value="0.1">Cliente VIP · 10%</option><option value="0.2">Campanha de Natal · 20%</option><option value="0.25">Black Friday · 25%</option></select></div><div class="form-row"><label for="notificationSelect">Implementação de INotificador</label><select id="notificationSelect"><option value="E-mail">EmailNotificador</option><option value="SMS">SmsNotificador</option><option value="Console">ConsoleNotificador</option></select></div><button type="button" class="btn primary" id="runCheckout">Simular finalização</button><p class="small-text">O exemplo visual simula o resultado; não realiza pagamentos nem envia mensagens reais.</p></div><div class="receipt" aria-live="polite"><span class="pill" style="width:max-content">Resumo do pedido</span><div class="rowline"><span>Subtotal</span><strong>R$ 200,00</strong></div><div class="rowline"><span>Desconto</span><strong id="discountValue">R$ 0,00</strong></div><hr><div class="rowline"><span>Total final</span><strong class="total" id="finalValue">R$ 200,00</strong></div><div class="muted" id="notificationValue">Aguardando simulação...</div><div class="note" id="strategyValue" style="margin-top:7px">A calculadora não precisa ser alterada quando uma nova política de desconto segue o mesmo contrato.</div></div></div></div>
+      </section>
+
+      <section id="laboratorio">
+        <div class="section-head"><div class="section-marker">02</div><div><span class="eyebrow">Atividade prática</span><h2>Laboratório de refatoração em C#</h2><p class="section-desc">Construa um checkout extensível usando interfaces e estratégias. Atividade indicada para Console App (.NET 8 ou superior).</p></div></div>
+        <div class="panel"><div class="split-head"><div><h3>Projeto: Mini Loja SOLID</h3><p class="small-text" style="margin:0">Use o projeto <a href="MiniLojaSolid/Program.cs">MiniLojaSolid</a> ou cole o código em um Console App. O código inclui verificações executáveis com <code>--test</code>.</p></div><button class="btn orange" id="copyLab" type="button">Copiar código-base</button></div>
+          <div class="code-wrap"><pre id="labBase"><code>using System.Globalization;
+
+CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("pt-BR");
+// Ponto de composição: escolhe as implementações fora da regra de negócio.
+var avisos = new NotificadorMemoria();
+var checkout = new Checkout(new DescontoVip(), avisos);
+var total = checkout.Finalizar(new Carrinho(200m));
+Console.WriteLine($"Total: {total:C}");
+Console.WriteLine(avisos.Mensagens[0]);
+
+if (args.Contains("--test"))
+{
+    foreach (IPoliticaDesconto politica in new IPoliticaDesconto[]
+             { new DescontoVip(), new DescontoBlackFriday() })
+    {
+        foreach (decimal entrada in new[] { 0m, 0.01m, 200m, 999m })
+        {
+            decimal saida = politica.Aplicar(entrada);
+            Verificar(saida &gt;= 0 &amp;&amp; saida &lt;= entrada, "Contrato do desconto");
+        }
+    }
+    var fake = new NotificadorMemoria();
+    var sut = new Checkout(new DescontoBlackFriday(), fake);
+    Verificar(sut.Finalizar(new Carrinho(200m)) == 150m, "Black Friday: 150");
+    Verificar(fake.Mensagens.Count == 1, "Uma notificação no sucesso");
+    try
+    {
+        sut.Finalizar(new Carrinho(-1m));
+        throw new Exception("Deveria rejeitar carrinho inválido");
+    }
+    catch (ArgumentOutOfRangeException) { }
+    Verificar(fake.Mensagens.Count == 1, "Pedido inválido não notifica");
+    Console.WriteLine("Verificações passaram.");
+}
+
+static void Verificar(bool condicao, string cenario)
+{
+    if (!condicao) throw new Exception($"Falhou: {cenario}");
+}
+
+public record Carrinho(decimal Total);
+
+public interface IPoliticaDesconto
+{
+    // Entrada &gt;= 0. Retorna valor entre 0 e a entrada.
+    decimal Aplicar(decimal total);
+}
+
+public class DescontoVip : IPoliticaDesconto
+{
+    public decimal Aplicar(decimal total) =&gt; total * 0.90m;
+}
+
+public class DescontoBlackFriday : IPoliticaDesconto
+{
+    public decimal Aplicar(decimal total) =&gt; total * 0.75m;
+}
+
+public interface INotificador
+{
+    // Registra ou encaminha o aviso; não garante entrega ao destinatário.
+    // Falhas do canal podem ser propagadas ao chamador.
+    void Enviar(string mensagem);
+}
+
+public class NotificadorMemoria : INotificador
+{
+    public List&lt;string&gt; Mensagens { get; } = new();
+    public void Enviar(string mensagem) =&gt; Mensagens.Add(mensagem);
+}
+
+public class Checkout
+{
+    private readonly IPoliticaDesconto _desconto;
+    private readonly INotificador _notificador;
+
+    public Checkout(IPoliticaDesconto desconto, INotificador notificador)
+    {
+        _desconto = desconto;
+        _notificador = notificador;
+    }
+
+    public decimal Finalizar(Carrinho carrinho)
+    {
+        if (carrinho.Total &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(carrinho));
+
+        decimal total = _desconto.Aplicar(carrinho.Total);
+        _notificador.Enviar("Pedido concluído");
+        return total;
+    }
+}
+</code></pre></div>
+          <div class="panel" style="margin-top:16px"><h4>Executar e verificar</h4><div class="code-wrap"><pre><code>dotnet run --project MiniLojaSolid
+dotnet run --project MiniLojaSolid -- --test</code></pre></div><p class="small-text">Resultado inicial: R$ 180,00 e um aviso em memória. As verificações cobrem limites do desconto, Black Friday e ausência de notificação para total inválido. São exemplos de evidências; não provam todo o LSP. Valores monetários fracionários precisariam de uma política explícita de arredondamento em produção.</p></div><div class="lab-steps"><div class="lab-step"><div><strong>Missão 1 — OCP</strong>A classe <code>DescontoBlackFriday</code> já está no projeto para comparação. Crie <code>DescontoAniversario</code> com 15% e use-a sem editar <code>Checkout</code>. Para R$ 200,00, espere R$ 170,00.</div></div><div class="lab-step"><div><strong>Missão 2 — DIP</strong>Crie <code>NotificadorSms : INotificador</code> e troque a implementação na criação do checkout.</div></div><div class="lab-step"><div><strong>Missão 3 — SRP</strong>O checkout agora retorna o total; a apresentação fica no início do programa. Discuta se extrair a única validação traria benefício. Extraia um validador se as regras ganharem evolução própria.</div></div><div class="lab-step"><div><strong>Missão 4 — ISP e LSP</strong>Explique por que <code>INotificador</code> não deveria exigir <code>GerarEtiqueta()</code> e o que ocorreria se <code>NotificadorSms.Enviar()</code> sempre lançasse <code>NotSupportedException</code>.</div></div></div>
+          <details><summary>Ver modelo de extensão para as missões 1 e 2</summary><div class="answer"><p>Black Friday já existe no projeto: não a duplique. Use-a como modelo para Aniversário (multiplicador 0.85m). Adicione o notificador SMS abaixo e escolha-o no ponto de composição. O envio é simulado no console.</p><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public class DescontoBlackFriday : IPoliticaDesconto
+{
+    public decimal Aplicar(decimal total)
+        =&gt; total * 0.75m;
+}
+
+public class NotificadorSms : INotificador
+{
+    public void Enviar(string mensagem)
+        =&gt; Console.WriteLine($"SMS: {mensagem}");
+}
+
+// No início do Program.cs, substitua por:
+// var desconto = new DescontoBlackFriday();
+// var notificador = new NotificadorSms();</code></pre></div></div></details>
+          <details><summary>Discutir a extração de validação na missão 3</summary><div class="answer"><p>Se a validação passar a mudar por regras próprias, esta extração é uma opção. Não é exigência do SRP criar uma classe para cada condição:</p><div class="code-wrap"><button class="copy" type="button">Copiar</button><pre><code>public class ValidadorCarrinho
+{
+    public void Validar(Carrinho carrinho)
+    {
+        if (carrinho.Total &lt;= 0)
+            throw new ArgumentException("Total inválido");
+    }
+}</code></pre></div><p>Em <code>Checkout</code>, substitua o bloco <code>if</code> do método <code>Finalizar</code> por <code>new ValidadorCarrinho().Validar(carrinho);</code>. Como evolução opcional, receba também o validador pelo construtor para facilitar os testes.</p></div></details>
+          <details><summary>Ver o raciocínio da missão 4</summary><div class="answer"><p><b>ISP:</b> um notificador não é responsável por etiquetas; adicionar esse método à interface obrigaria implementações a oferecer uma operação irrelevante. <b>LSP:</b> quem recebe <code>INotificador</code> espera que <code>Enviar</code> seja uma operação utilizável. Uma implementação que lança sempre uma exceção não prevista rompe essa expectativa.</p></div></details>
+          <div class="note" style="margin-top:18px"><b>Discussão final:</b> interfaces e classes extras são úteis quando representam diferenças reais. Em um programa minúsculo que nunca muda, abstrair tudo pode tornar o código desnecessariamente complexo.</div>
+        </div>
+      </section>
+
+      <section id="quiz">
+        <div class="section-head"><div class="section-marker">?</div><div><span class="eyebrow">Verificação</span><h2>Você reconhece cada princípio?</h2><p class="section-desc">Marque uma alternativa em cada situação e confira a correção comentada ao final.</p></div></div>
+        <div id="quizContainer"></div>
+        <div class="quiz-actions" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px"><button class="btn primary" id="gradeQuiz" type="button">Corrigir respostas</button><button class="btn" id="resetQuiz" type="button">Refazer quiz</button><span class="score" id="quizScore" aria-live="polite"></span></div>
+        <div class="panel" style="margin-top:21px"><h3>Resumo para memorizar</h3><div class="three-col"><div><span class="pill">S · SRP</span><p class="small-text">Evite misturar motivos diferentes para mudar.</p></div><div><span class="pill">O · OCP</span><p class="small-text">Adicione variações sem reescrever o núcleo.</p></div><div><span class="pill">L · LSP</span><p class="small-text">Implementações precisam cumprir as mesmas promessas.</p></div><div><span class="pill">I · ISP</span><p class="small-text">Não imponha métodos que o consumidor não usa.</p></div><div><span class="pill">D · DIP</span><p class="small-text">Faça o núcleo depender de contratos.</p></div><div><span class="pill orange">Regra prática</span><p class="small-text">SOLID é ferramenta de design, não uma competição de interfaces.</p></div></div></div>
+      </section>
+      <section id="referencias"><div class="panel"><h3>Para aprofundar e discutir</h3><p><a href="https://learn.microsoft.com/dotnet/standard/modern-web-apps-azure-architecture/architectural-principles">Microsoft Learn — princípios arquiteturais e inversão de dependência</a></p><p><a href="https://www.cs.cmu.edu/~wing/publications/LiskovWing94.pdf">Liskov e Wing — A Behavioral Notion of Subtyping (1994)</a></p><p class="small-text">Saída da aula: explique qual mudança você isolou, qual contrato preservou e qual verificação sustenta sua decisão. A aula funciona offline; as leituras externas exigem conexão.</p></div></section><footer><div class="footer-line"><span><strong>SOLID na prática</strong> · Aula de Arquitetura de Software · C#</span><span>Material independente · funciona sem internet</span></div><p class="hide-on-screen">Versão impressa: diagramas, códigos e exercícios são apresentados para estudo e revisão.</p></footer>
+    </main>
+  </div>
+  <script>
+    'use strict';
+    const themeBtn = document.getElementById('themeBtn');
+    function applyTheme(dark) {
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      themeBtn.textContent = dark ? 'Modo claro' : 'Modo escuro';
+    }
+    try { applyTheme(localStorage.getItem('solidTheme') === 'dark'); } catch { applyTheme(false); }
+    themeBtn.addEventListener('click', () => {
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      applyTheme(dark);
+      try { localStorage.setItem('solidTheme', dark ? 'dark' : 'light'); } catch { /* armazenamento opcional */ }
+    });
+
+    const progressEl = document.getElementById('readProgress');
+    function updateProgress() {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progressEl.style.width = (max > 0 ? Math.min(100, Math.round(window.scrollY / max * 100)) : 100) + '%';
+    }
+    window.addEventListener('scroll', updateProgress, {passive:true});
+    window.addEventListener('resize', updateProgress);
+    updateProgress();
+
+    const navItems = Array.from(document.querySelectorAll('#lessonNav a'));
+    const sections = Array.from(document.querySelectorAll('main header[id], main section[id]'));
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => {
+        const visible = entries.filter(x => x.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length) {
+          navItems.forEach(link => link.classList.toggle('active', link.getAttribute('href') === '#' + visible[0].target.id));
+        }
+      }, {rootMargin:'-10% 0px -65% 0px', threshold:[0, .1, .25]});
+      sections.forEach(section => observer.observe(section));
+    }
+
+    async function copyText(text, button) {
+      const original = button.textContent;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const area = document.createElement('textarea');
+          area.value = text;
+          area.style.position = 'fixed'; area.style.opacity = '0';
+          document.body.appendChild(area); area.select();
+          if (!document.execCommand('copy')) throw new Error('Falha ao copiar');
+          area.remove();
+        }
+        button.textContent = 'Copiado!';
+      } catch {
+        button.textContent = 'Selecione o código';
+      }
+      setTimeout(() => button.textContent = original, 1900);
+    }
+    document.querySelectorAll('.copy').forEach(button => {
+      button.addEventListener('click', () => {
+        const code = button.parentElement.querySelector('code');
+        if (code) copyText(code.textContent.trim(), button);
+      });
+    });
+    document.getElementById('copyLab').addEventListener('click', () => {
+      copyText(document.querySelector('#labBase code').textContent.trim(), document.getElementById('copyLab'));
+    });
+
+    const discountPolicies = {
+      '0': {name:'SemDesconto', apply: total => total},
+      '0.1': {name:'DescontoVip', apply: total => total * 0.9},
+      '0.2': {name:'DescontoNatal', apply: total => total * 0.8},
+      '0.25': {name:'DescontoBlackFriday', apply: total => total * 0.75}
+    };
+    const notificationChannels = {
+      'E-mail': message => 'EmailNotificador: ' + message,
+      'SMS': message => 'SmsNotificador: ' + message,
+      'Console': message => 'NotificadorConsole: ' + message
+    };
+    function executeCheckout(policy, notify) {
+      const total = policy.apply(200);
+      return {total, message: notify('Pedido concluído')};
+    }
+    const money = new Intl.NumberFormat('pt-BR', {style:'currency',currency:'BRL'});
+    function checkoutSimulation() {
+      const policy = discountPolicies[document.getElementById('discountSelect').value];
+      const channel = document.getElementById('notificationSelect').value;
+      const result = executeCheckout(policy, notificationChannels[channel]);
+      const reduction = 200 - result.total;
+      document.getElementById('discountValue').textContent = '− ' + money.format(reduction);
+      document.getElementById('finalValue').textContent = money.format(200 - reduction);
+      document.getElementById('notificationValue').textContent = 'Simulação · ' + result.message;
+      document.getElementById('strategyValue').textContent = policy.name + ' → executeCheckout → ' + channel + '. O fluxo usa os mesmos contratos; a seleção acontece fora dele.';
+    }
+    document.getElementById('runCheckout').addEventListener('click', checkoutSimulation);
+    document.getElementById('discountSelect').addEventListener('change', checkoutSimulation);
+    document.getElementById('notificationSelect').addEventListener('change', checkoutSimulation);
+
+    const questions = [
+      {q:'Uma classe valida pedidos, consulta o banco e gera PDFs. Qual princípio ajuda a separar as responsabilidades?', options:['LSP','SRP','OCP','DIP'], answer:1, why:'SRP: a classe mistura motivos de mudança diferentes, como validação, persistência e geração de documentos.'},
+      {q:'A loja precisa adicionar desconto de aniversário sem modificar a calculadora de preços. Qual princípio é mais diretamente aplicado?', options:['OCP','ISP','SRP','LSP'], answer:0, why:'OCP: uma nova política pode implementar uma abstração usada pela calculadora.'},
+      {q:'Uma classe herda de Frete, mas lança exceção para uma entrada que o contrato-base prometia aceitar. Qual princípio foi violado?', options:['DIP','ISP','LSP','SRP'], answer:2, why:'LSP: uma implementação não deve impor surpresas ou restrições incompatíveis com o contrato esperado.'},
+      {q:'Uma interface obriga PagamentoPix a implementar métodos para imprimir etiqueta e rastrear entrega. Qual princípio está em risco?', options:['OCP','ISP','DIP','LSP'], answer:1, why:'ISP: é melhor separar contratos para que cada classe dependa só de operações relevantes.'},
+      {q:'CheckoutService recebe INotificador no construtor em vez de criar EmailNotificador. Isso é exemplo de:', options:['DIP com injeção de dependência','Apenas herança','Apenas encapsulamento','Quebra de SRP'], answer:0, why:'DIP define a dependência de abstrações; injeção pelo construtor é uma técnica para realizar isso.'},
+      {q:'O SRP exige que cada classe tenha exatamente um método?', options:['Sim, sempre','Somente quando usa banco','Não, trata de motivos para mudar','Sim, em aplicações grandes'], answer:2, why:'SRP se refere à coesão das responsabilidades e aos motivos de mudança, não à contagem de métodos.'},
+      {q:'Qual alternativa sobre SOLID é a mais adequada?', options:['Toda classe deve ter uma interface','Nunca se modifica código existente','Use abstrações quando resolvem uma necessidade real','SOLID substitui testes automatizados'], answer:2, why:'Abstrações têm custo. SOLID orienta boas escolhas, mas não elimina testes nem dispensa avaliar complexidade.'},
+      {q:'Uma implementação de INotificador pode ser trocada por outra que cumpre o mesmo comportamento esperado. O conceito mais ligado à substituição correta é:', options:['SRP','LSP','OCP','ISP'], answer:1, why:'LSP trata de substituir implementações preservando o contrato e o comportamento esperado.'}
+    ];
+    const quizContainer = document.getElementById('quizContainer');
+    function renderQuiz() {
+      quizContainer.innerHTML = '';
+      questions.forEach((q, i) => {
+        const article = document.createElement('article'); article.className = 'quiz-question';
+        const num = document.createElement('div'); num.className = 'qnum'; num.textContent = 'Questão ' + (i+1) + ' de ' + questions.length;
+        const heading = document.createElement('h3'); heading.textContent = q.q;
+        const options = document.createElement('div'); options.className = 'quiz-options';
+        q.options.forEach((option, j) => {
+          const label = document.createElement('label'); label.className = 'quiz-option';
+          const input = document.createElement('input'); input.type = 'radio'; input.name = 'question-' + i; input.value = j;
+          const text = document.createElement('span'); text.textContent = option;
+          label.append(input,text); options.appendChild(label);
+        });
+        const feedback = document.createElement('div'); feedback.className = 'quiz-feedback'; feedback.setAttribute('aria-live','polite');
+        article.append(num,heading,options,feedback); quizContainer.appendChild(article);
+      });
+      document.getElementById('quizScore').textContent = '';
+    }
+    renderQuiz();
+    document.getElementById('gradeQuiz').addEventListener('click', () => {
+      let correct = 0, unanswered = 0;
+      const cards = Array.from(quizContainer.querySelectorAll('.quiz-question'));
+      cards.forEach((card, i) => {
+        const q = questions[i];
+        const checked = card.querySelector('input:checked');
+        if (!checked) unanswered++;
+        const selected = checked ? Number(checked.value) : -1;
+        if (selected === q.answer) correct++;
+        card.querySelectorAll('.quiz-option').forEach((label, j) => {
+          label.classList.toggle('correct', j === q.answer);
+          label.classList.toggle('incorrect', j === selected && selected !== q.answer);
+        });
+        const feedback = card.querySelector('.quiz-feedback');
+        feedback.style.display = 'block';
+        feedback.textContent = (selected === q.answer ? 'Correto! ' : selected < 0 ? 'Sem resposta. ' : 'Revise: ') + q.why;
+      });
+      const score = document.getElementById('quizScore');
+      score.textContent = 'Resultado: ' + correct + '/' + questions.length + ' acertos' + (unanswered ? ' · ' + unanswered + ' sem resposta' : '');
+      score.scrollIntoView({behavior:'smooth',block:'nearest'});
+    });
+    document.getElementById('resetQuiz').addEventListener('click', () => {renderQuiz(); document.getElementById('quiz').scrollIntoView({behavior:'smooth'});});
+  </script>
+</body>
+</html>
